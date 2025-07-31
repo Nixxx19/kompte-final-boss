@@ -11,10 +11,18 @@ const Exercise = () => {
   const [selectedExercise, setSelectedExercise] = useState<ExerciseType | null>(null);
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Background Effects */}
+    <div className="min-h-screen bg-background overflow-hidden">
+      {/* Enhanced Background Effects */}
       <div className="fixed inset-0 bg-gradient-to-br from-background via-background to-primary/5" />
       <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/20 via-transparent to-transparent" />
+      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-accent/10 via-transparent to-transparent" />
+      
+      {/* Animated particles */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-primary/30 rounded-full animate-pulse" style={{animationDelay: '0s'}} />
+        <div className="absolute top-1/3 right-1/3 w-1 h-1 bg-accent/40 rounded-full animate-pulse" style={{animationDelay: '1s'}} />
+        <div className="absolute bottom-1/4 left-1/3 w-1.5 h-1.5 bg-primary/20 rounded-full animate-pulse" style={{animationDelay: '2s'}} />
+      </div>
       
       <div className="relative z-10">
         {/* Header */}

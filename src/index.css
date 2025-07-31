@@ -47,6 +47,12 @@ All colors MUST be HSL.
     --gradient-primary: linear-gradient(135deg, hsl(258 84% 60%) 0%, hsl(280 84% 70%) 100%);
     --gradient-secondary: linear-gradient(135deg, hsl(222 47% 15%) 0%, hsl(222 47% 20%) 100%);
     --gradient-accent: linear-gradient(135deg, hsl(180 84% 60%) 0%, hsl(258 84% 60%) 100%);
+    --gradient-glow: linear-gradient(135deg, hsl(258 84% 60% / 0.3) 0%, hsl(280 84% 70% / 0.3) 100%);
+    
+    /* Enhanced shadows */
+    --shadow-primary: 0 20px 50px hsl(258 84% 60% / 0.3);
+    --shadow-secondary: 0 10px 30px hsl(222 47% 8% / 0.5);
+    --shadow-glass: 0 8px 32px hsl(222 47% 8% / 0.4);
 
     --sidebar-background: 0 0% 98%;
 
@@ -111,5 +117,72 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+}
+
+@layer components {
+  /* Glass morphism component */
+  .glass-card {
+    @apply backdrop-blur-xl bg-glass border-glass-border shadow-2xl;
+    box-shadow: var(--shadow-glass);
+  }
+  
+  /* Premium button variants */
+  .btn-premium {
+    @apply relative overflow-hidden transition-all duration-300;
+    background: var(--gradient-primary);
+    box-shadow: var(--shadow-primary);
+  }
+  
+  .btn-premium:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 25px 60px hsl(258 84% 60% / 0.4);
+  }
+  
+  .btn-premium:active {
+    transform: translateY(0);
+  }
+  
+  /* Animated underline */
+  .nav-link {
+    @apply relative transition-colors duration-300;
+  }
+  
+  .nav-link::after {
+    @apply absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300;
+    content: '';
+  }
+  
+  .nav-link:hover::after {
+    @apply w-full;
+  }
+  
+  /* Floating animation */
+  .float-animation {
+    animation: float 6s ease-in-out infinite;
+  }
+  
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+  }
+  
+  /* Pulse glow effect */
+  .pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite alternate;
+  }
+  
+  @keyframes pulse-glow {
+    0% { box-shadow: 0 0 20px hsl(258 84% 60% / 0.3); }
+    100% { box-shadow: 0 0 40px hsl(258 84% 60% / 0.6); }
+  }
+  
+  /* Gradient text */
+  .gradient-text {
+    background: var(--gradient-primary);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
 }

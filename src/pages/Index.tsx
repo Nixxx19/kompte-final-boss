@@ -9,39 +9,52 @@ import {
   Play,
   Trophy,
   Users,
-  TrendingUp
+  TrendingUp,
+  Sparkles,
+  ChevronRight
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-background">
-      {/* Background Effects */}
+    <div className="min-h-screen bg-background overflow-hidden">
+      {/* Enhanced Background Effects */}
       <div className="fixed inset-0 bg-gradient-to-br from-background via-background to-primary/5" />
       <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/20 via-transparent to-transparent" />
+      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-accent/10 via-transparent to-transparent" />
+      
+      {/* Animated particles */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-primary/30 rounded-full animate-pulse" style={{animationDelay: '0s'}} />
+        <div className="absolute top-1/3 right-1/3 w-1 h-1 bg-accent/40 rounded-full animate-pulse" style={{animationDelay: '1s'}} />
+        <div className="absolute bottom-1/4 left-1/3 w-1.5 h-1.5 bg-primary/20 rounded-full animate-pulse" style={{animationDelay: '2s'}} />
+      </div>
       
       <div className="relative z-10">
-        {/* Header */}
-        <header className="border-b border-border/50 backdrop-blur-xl bg-background/80">
+        {/* Enhanced Header */}
+        <header className="border-b border-border/50 backdrop-blur-xl bg-background/80 sticky top-0 z-50">
           <div className="container mx-auto px-4 py-6">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-primary/20">
+              <div className="flex items-center gap-3 group">
+                <div className="p-2 rounded-lg bg-primary/20 group-hover:bg-primary/30 transition-all duration-300 group-hover:scale-110">
                   <Activity className="w-6 h-6 text-primary" />
                 </div>
                 <div>
-                  <h1 className="text-xl font-bold text-foreground">KOMPTE AI</h1>
+                  <h1 className="text-xl font-bold text-foreground group-hover:text-primary transition-colors duration-300">
+                    KOMPTE AI
+                  </h1>
                   <p className="text-xs text-muted-foreground">Performance Analytics</p>
                 </div>
               </div>
               
-              <nav className="hidden md:flex items-center gap-6">
-                <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Dashboard</a>
-                <Link to="/exercise" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Exercise</Link>
-                <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Upload</a>
-                <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Drill</a>
-                <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Analytics</a>
-                <Button size="sm" className="bg-primary hover:bg-primary/80">
+              <nav className="hidden md:flex items-center gap-8">
+                <a href="#" className="nav-link text-sm text-muted-foreground hover:text-foreground">Dashboard</a>
+                <Link to="/exercise" className="nav-link text-sm text-muted-foreground hover:text-foreground">Exercise</Link>
+                <a href="#" className="nav-link text-sm text-muted-foreground hover:text-foreground">Upload</a>
+                <a href="#" className="nav-link text-sm text-muted-foreground hover:text-foreground">Drill</a>
+                <a href="#" className="nav-link text-sm text-muted-foreground hover:text-foreground">Analytics</a>
+                <Button size="sm" className="btn-premium">
+                  <Sparkles className="w-4 h-4 mr-2" />
                   Get Started
                 </Button>
               </nav>
@@ -49,177 +62,203 @@ const Index = () => {
           </div>
         </header>
 
-        {/* Hero Section */}
-        <section className="container mx-auto px-4 py-16">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="space-y-8">
-              <div className="space-y-4">
-                <h1 className="text-5xl lg:text-6xl font-bold text-foreground leading-tight">
-                  KOMPTE<span className="text-primary">.</span>
+        {/* Enhanced Hero Section */}
+        <section className="container mx-auto px-4 py-20 relative">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            <div className="space-y-8 animate-fade-in">
+              <div className="space-y-6">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium">
+                  <Sparkles className="w-4 h-4" />
+                  Crafting Champions Since 2022
+                </div>
+                
+                <h1 className="text-6xl lg:text-7xl font-bold text-foreground leading-tight">
+                  KOMPTE<span className="gradient-text">.</span>
                 </h1>
-                <p className="text-xl text-muted-foreground mb-6">
-                  Crafting Champions Since 2022.
-                </p>
-                <h2 className="text-2xl font-semibold text-foreground">
+                
+                <h2 className="text-3xl font-semibold text-foreground opacity-90">
                   Ready Set KOMPTE.
                 </h2>
-                <p className="text-muted-foreground max-w-md">
-                  Upload your exercise videos to unlock professional-grade performance insights with AI-powered analysis and visualization.
+                
+                <p className="text-lg text-muted-foreground max-w-lg leading-relaxed">
+                  Upload your exercise videos to unlock professional-grade performance insights with AI-powered analysis and real-time visualization.
                 </p>
               </div>
               
-              <div className="flex gap-4">
+              <div className="flex gap-6">
                 <Link to="/exercise">
-                  <Button size="lg" className="bg-primary hover:bg-primary/80 group">
-                    <Play className="w-4 h-4 mr-2" />
+                  <Button size="lg" className="btn-premium group text-lg px-8 py-4">
+                    <Play className="w-5 h-5 mr-3" />
                     Start Analysis
-                    <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                    <ArrowRight className="w-5 h-5 ml-3 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </Link>
-                <Button variant="outline" size="lg" className="bg-secondary/50 border-border/50 hover:bg-secondary/70">
+                <Button variant="outline" size="lg" className="glass-card hover:bg-secondary/70 text-lg px-8 py-4 group">
+                  <Play className="w-5 h-5 mr-3" />
                   Watch Demo
                 </Button>
               </div>
             </div>
             
-            {/* Hero Visual */}
-            <div className="relative">
-              <Card className="relative backdrop-blur-xl bg-glass border-glass-border p-8 shadow-2xl">
+            {/* Enhanced Hero Visual */}
+            <div className="relative animate-scale-in" style={{animationDelay: '0.2s'}}>
+              <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-accent/20 rounded-3xl blur-3xl" />
+              <Card className="glass-card p-12 shadow-2xl relative float-animation">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-accent/5 rounded-lg" />
                 <div className="relative z-10 text-center">
-                  <div className="w-24 h-24 mx-auto mb-6 rounded-2xl bg-primary/20 flex items-center justify-center">
-                    <Play className="w-10 h-10 text-primary" />
+                  <div className="w-32 h-32 mx-auto mb-8 rounded-3xl bg-gradient-to-br from-primary/30 to-accent/30 flex items-center justify-center pulse-glow">
+                    <Play className="w-16 h-16 text-primary" />
                   </div>
-                  <p className="text-foreground font-medium mb-2">See Analytics in Action</p>
-                  <p className="text-sm text-muted-foreground">Real-time performance tracking</p>
+                  <h3 className="text-xl font-semibold text-foreground mb-3">See Analytics in Action</h3>
+                  <p className="text-muted-foreground">Real-time performance tracking with AI precision</p>
                 </div>
               </Card>
             </div>
           </div>
         </section>
 
-        {/* Features Section */}
-        <section className="container mx-auto px-4 py-16">
-          <div className="text-center mb-12">
-            <h3 className="text-3xl font-bold text-foreground mb-4">Performance Features</h3>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              Advanced AI-powered analytics to track, analyze, and improve your exercise performance
+        {/* Enhanced Features Section */}
+        <section className="container mx-auto px-4 py-20">
+          <div className="text-center mb-16 animate-fade-in">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 border border-accent/20 text-accent text-sm font-medium mb-6">
+              <Target className="w-4 h-4" />
+              Performance Features
+            </div>
+            <h3 className="text-4xl font-bold text-foreground mb-6">
+              AI-Powered <span className="gradient-text">Analytics</span>
+            </h3>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+              Advanced machine learning algorithms to track, analyze, and improve your exercise performance with unprecedented accuracy
             </p>
           </div>
           
-          <div className="grid md:grid-cols-3 gap-6">
-            <Card className="relative backdrop-blur-xl bg-glass border-glass-border p-6 shadow-2xl group hover:shadow-3xl transition-all duration-300">
-              <div className="absolute inset-0 bg-gradient-to-br from-green-500/10 to-primary/5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity" />
-              <div className="relative z-10">
-                <div className="p-3 rounded-xl bg-green-500/20 text-green-400 w-fit mb-4">
-                  <Target className="w-6 h-6" />
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              {
+                icon: Target,
+                title: "Exercise Tracking",
+                description: "Visualize exercise form and movement zones with precision tracking and real-time feedback.",
+                color: "green",
+                delay: "0s"
+              },
+              {
+                icon: Zap,
+                title: "Performance Analysis", 
+                description: "Track form quality and performance trends over time with detailed insights and recommendations.",
+                color: "orange",
+                delay: "0.1s"
+              },
+              {
+                icon: BarChart3,
+                title: "Form Insights",
+                description: "Analyze movement timing and execution performance with AI-powered form analysis.",
+                color: "blue",
+                delay: "0.2s"
+              }
+            ].map((feature, index) => (
+              <Card key={index} className="glass-card p-8 shadow-2xl group hover:shadow-3xl transition-all duration-500 animate-scale-in hover:-translate-y-2" style={{animationDelay: feature.delay}}>
+                <div className="absolute inset-0 bg-gradient-to-br from-transparent to-primary/5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="relative z-10">
+                  <div className={`p-4 rounded-2xl bg-${feature.color}-500/20 text-${feature.color}-400 w-fit mb-6 group-hover:scale-110 transition-transform duration-300`}>
+                    <feature.icon className="w-8 h-8" />
+                  </div>
+                  <h4 className="text-xl font-semibold text-foreground mb-4 group-hover:text-primary transition-colors">
+                    {feature.title}
+                  </h4>
+                  <p className="text-muted-foreground leading-relaxed">
+                    {feature.description}
+                  </p>
+                  <div className="mt-6 flex items-center text-primary opacity-0 group-hover:opacity-100 transition-all duration-300 group-hover:translate-x-2">
+                    <span className="text-sm font-medium">Learn more</span>
+                    <ChevronRight className="w-4 h-4 ml-1" />
+                  </div>
                 </div>
-                <h4 className="text-lg font-semibold text-foreground mb-2">Exercise Tracking</h4>
-                <p className="text-muted-foreground text-sm">
-                  Visualize exercise form and movement zones with precision tracking and real-time feedback.
-                </p>
-              </div>
-            </Card>
-            
-            <Card className="relative backdrop-blur-xl bg-glass border-glass-border p-6 shadow-2xl group hover:shadow-3xl transition-all duration-300">
-              <div className="absolute inset-0 bg-gradient-to-br from-orange-500/10 to-primary/5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity" />
-              <div className="relative z-10">
-                <div className="p-3 rounded-xl bg-orange-500/20 text-orange-400 w-fit mb-4">
-                  <Zap className="w-6 h-6" />
-                </div>
-                <h4 className="text-lg font-semibold text-foreground mb-2">Performance Analysis</h4>
-                <p className="text-muted-foreground text-sm">
-                  Track form quality and performance trends over time with detailed insights and recommendations.
-                </p>
-              </div>
-            </Card>
-            
-            <Card className="relative backdrop-blur-xl bg-glass border-glass-border p-6 shadow-2xl group hover:shadow-3xl transition-all duration-300">
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-primary/5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity" />
-              <div className="relative z-10">
-                <div className="p-3 rounded-xl bg-blue-500/20 text-blue-400 w-fit mb-4">
-                  <BarChart3 className="w-6 h-6" />
-                </div>
-                <h4 className="text-lg font-semibold text-foreground mb-2">Form Insights</h4>
-                <p className="text-muted-foreground text-sm">
-                  Analyze movement timing and execution performance with AI-powered form analysis.
-                </p>
-              </div>
-            </Card>
+              </Card>
+            ))}
           </div>
         </section>
 
-        {/* Stats Section */}
-        <section className="container mx-auto px-4 py-16">
-          <Card className="relative backdrop-blur-xl bg-glass border-glass-border p-8 shadow-2xl">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-accent/5 rounded-lg" />
+        {/* Enhanced Stats Section */}
+        <section className="container mx-auto px-4 py-20">
+          <Card className="glass-card p-12 shadow-2xl relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-accent/10 rounded-lg" />
+            <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bl from-primary/20 to-transparent rounded-full blur-3xl" />
             <div className="relative z-10">
+              <div className="text-center mb-12">
+                <h3 className="text-3xl font-bold text-foreground mb-4">
+                  Trusted by <span className="gradient-text">Champions</span>
+                </h3>
+                <p className="text-muted-foreground text-lg">Join thousands of athletes achieving peak performance</p>
+              </div>
+              
               <div className="grid md:grid-cols-4 gap-8 text-center">
-                <div>
-                  <div className="flex items-center justify-center mb-4">
-                    <div className="p-3 rounded-xl bg-primary/20 text-primary">
-                      <Users className="w-6 h-6" />
+                {[
+                  { icon: Users, value: "10K+", label: "Athletes Trained", color: "primary" },
+                  { icon: Activity, value: "1M+", label: "Exercises Analyzed", color: "accent" },
+                  { icon: TrendingUp, value: "95%", label: "Accuracy Rate", color: "green" },
+                  { icon: Trophy, value: "Elite", label: "Performance Level", color: "yellow" }
+                ].map((stat, index) => (
+                  <div key={index} className="group animate-fade-in" style={{animationDelay: `${index * 0.1}s`}}>
+                    <div className="flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                      <div className={`p-4 rounded-2xl bg-${stat.color === 'primary' ? 'primary' : stat.color === 'accent' ? 'accent' : stat.color}-500/20 text-${stat.color === 'primary' ? 'primary' : stat.color === 'accent' ? 'accent' : stat.color}-400`}>
+                        <stat.icon className="w-8 h-8" />
+                      </div>
                     </div>
-                  </div>
-                  <div className="text-3xl font-bold text-foreground mb-2">10K+</div>
-                  <div className="text-sm text-muted-foreground">Athletes Trained</div>
-                </div>
-                
-                <div>
-                  <div className="flex items-center justify-center mb-4">
-                    <div className="p-3 rounded-xl bg-accent/20 text-accent">
-                      <Activity className="w-6 h-6" />
+                    <div className="text-4xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors">
+                      {stat.value}
                     </div>
+                    <div className="text-muted-foreground font-medium">{stat.label}</div>
                   </div>
-                  <div className="text-3xl font-bold text-foreground mb-2">1M+</div>
-                  <div className="text-sm text-muted-foreground">Exercises Analyzed</div>
-                </div>
-                
-                <div>
-                  <div className="flex items-center justify-center mb-4">
-                    <div className="p-3 rounded-xl bg-green-500/20 text-green-400">
-                      <TrendingUp className="w-6 h-6" />
-                    </div>
-                  </div>
-                  <div className="text-3xl font-bold text-foreground mb-2">95%</div>
-                  <div className="text-sm text-muted-foreground">Accuracy Rate</div>
-                </div>
-                
-                <div>
-                  <div className="flex items-center justify-center mb-4">
-                    <div className="p-3 rounded-xl bg-yellow-500/20 text-yellow-400">
-                      <Trophy className="w-6 h-6" />
-                    </div>
-                  </div>
-                  <div className="text-3xl font-bold text-foreground mb-2">Elite</div>
-                  <div className="text-sm text-muted-foreground">Performance Level</div>
-                </div>
+                ))}
               </div>
             </div>
           </Card>
         </section>
 
-        {/* CTA Section */}
-        <section className="container mx-auto px-4 py-16">
-          <Card className="relative backdrop-blur-xl bg-glass border-glass-border p-12 shadow-2xl text-center">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/10 rounded-lg" />
-            <div className="relative z-10 max-w-2xl mx-auto">
-              <h3 className="text-3xl font-bold text-foreground mb-4">
-                Ready to Elevate Your Performance?
+        {/* Enhanced CTA Section */}
+        <section className="container mx-auto px-4 py-20">
+          <Card className="glass-card p-16 shadow-2xl text-center relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20 rounded-lg" />
+            <div className="absolute inset-0 bg-gradient-to-t from-transparent via-primary/5 to-transparent" />
+            <div className="relative z-10 max-w-3xl mx-auto animate-fade-in">
+              <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-primary/10 border border-primary/20 text-primary font-medium mb-8">
+                <Sparkles className="w-5 h-5" />
+                Start Your Journey Today
+              </div>
+              
+              <h3 className="text-4xl lg:text-5xl font-bold text-foreground mb-6 leading-tight">
+                Ready to Elevate Your <span className="gradient-text">Performance?</span>
               </h3>
-              <p className="text-muted-foreground mb-8">
-                Start your journey with AI-powered exercise analysis and unlock your full potential.
+              
+              <p className="text-xl text-muted-foreground mb-12 leading-relaxed">
+                Join the elite athletes who trust KOMPTE AI to unlock their full potential with cutting-edge exercise analysis and personalized insights.
               </p>
-              <Link to="/exercise">
-                <Button size="lg" className="bg-primary hover:bg-primary/80 group">
-                  <Activity className="w-4 h-4 mr-2" />
-                  Start Your Analysis
-                  <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+              
+              <div className="flex flex-col sm:flex-row gap-6 justify-center">
+                <Link to="/exercise">
+                  <Button size="lg" className="btn-premium group text-lg px-10 py-5">
+                    <Activity className="w-5 h-5 mr-3" />
+                    Start Your Analysis
+                    <ArrowRight className="w-5 h-5 ml-3 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </Link>
+                <Button variant="outline" size="lg" className="glass-card hover:bg-secondary/70 text-lg px-10 py-5">
+                  <Play className="w-5 h-5 mr-3" />
+                  View Demo
                 </Button>
-              </Link>
+              </div>
             </div>
           </Card>
         </section>
+
+        {/* Footer */}
+        <footer className="border-t border-border/50 bg-background/50 backdrop-blur-xl">
+          <div className="container mx-auto px-4 py-8">
+            <div className="text-center text-muted-foreground">
+              <p>&copy; 2024 KOMPTE AI. Crafting Champions Since 2022.</p>
+            </div>
+          </div>
+        </footer>
       </div>
     </div>
   );
