@@ -1,0 +1,180 @@
+import { useState } from 'react';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { 
+  Upload, 
+  Video, 
+  PlayCircle,
+  FileVideo,
+  Zap,
+  Target
+} from 'lucide-react';
+
+interface ExerciseUploadProps {
+  selectedExercise: any;
+}
+
+export const ExerciseUpload = ({ selectedExercise }: ExerciseUploadProps) => {
+  const [isDragging, setIsDragging] = useState(false);
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = () => {
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const files = e.dataTransfer.files;
+    if (files[0]) {
+      setUploadedFile(files[0]);
+    }
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setUploadedFile(file);
+    }
+  };
+
+  return (
+    <Card className="relative backdrop-blur-xl bg-glass border-glass-border p-6 shadow-2xl">
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-accent/5 rounded-lg" />
+      <div className="relative z-10">
+        <div className="text-center mb-6">
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <div className="p-2 rounded-lg bg-primary/20">
+              <Upload className="w-5 h-5 text-primary" />
+            </div>
+            <h3 className="text-xl font-semibold text-foreground">Upload Exercise Video</h3>
+          </div>
+          <p className="text-muted-foreground">
+            Upload your {selectedExercise?.name || 'exercise'} recording for AI-powered performance analysis
+          </p>
+        </div>
+
+        {/* Upload Process Steps */}
+        <div className="flex items-center justify-center gap-4 mb-8">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-medium">
+              1
+            </div>
+            <span className="text-sm font-medium text-primary">Upload Video</span>
+          </div>
+          <div className="w-8 h-0.5 bg-border"></div>
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-muted text-muted-foreground flex items-center justify-center text-sm font-medium">
+              2
+            </div>
+            <span className="text-sm text-muted-foreground">AI Processing</span>
+          </div>
+          <div className="w-8 h-0.5 bg-border"></div>
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-muted text-muted-foreground flex items-center justify-center text-sm font-medium">
+              3
+            </div>
+            <span className="text-sm text-muted-foreground">View Results</span>
+          </div>
+        </div>
+
+        {/* Upload Area */}
+        <div
+          className={`relative border-2 border-dashed rounded-xl p-8 transition-all duration-300 ${
+            isDragging 
+              ? 'border-primary bg-primary/5 scale-105' 
+              : 'border-border/50 hover:border-primary/50 hover:bg-primary/5'
+          }`}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+        >
+          <div className="text-center">
+            {uploadedFile ? (
+              <div className="space-y-4">
+                <div className="flex items-center justify-center">
+                  <div className="p-4 rounded-full bg-green-500/20">
+                    <FileVideo className="w-8 h-8 text-green-400" />
+                  </div>
+                </div>
+                <div>
+                  <p className="font-medium text-foreground">{uploadedFile.name}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {(uploadedFile.size / (1024 * 1024)).toFixed(2)} MB
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="flex items-center justify-center">
+                  <div className="p-4 rounded-full bg-primary/20">
+                    <Video className="w-8 h-8 text-primary" />
+                  </div>
+                </div>
+                <div>
+                  <p className="text-lg font-medium text-foreground mb-2">
+                    Upload Exercise Video
+                  </p>
+                  <p className="text-muted-foreground mb-4">
+                    Drag and drop your video file here
+                    <br />
+                    or click to browse files
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+          
+          <input
+            type="file"
+            accept="video/*"
+            onChange={handleFileSelect}
+            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+          />
+        </div>
+
+        <p className="text-xs text-muted-foreground text-center mt-4">
+          Supported formats: MP4, MOV, AVI • Recommended: 1080p, 30+ fps, clear view
+        </p>
+
+        {/* Action Buttons */}
+        <div className="flex gap-4 mt-8">
+          <Button 
+            variant="outline" 
+            className="flex-1 bg-secondary/50 border-border/50 hover:bg-secondary/70"
+          >
+            <PlayCircle className="w-4 h-4 mr-2" />
+            Record Live Video
+          </Button>
+          <Button 
+            className="flex-1 bg-gradient-to-r from-primary to-accent hover:from-primary/80 hover:to-accent/80"
+            disabled={!uploadedFile}
+          >
+            <Zap className="w-4 h-4 mr-2" />
+            Start Analysis
+          </Button>
+        </div>
+
+        {/* Exercise Info */}
+        {selectedExercise && (
+          <div className="mt-6 p-4 rounded-lg bg-secondary/30 border border-border/50">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-accent/20 text-accent">
+                {selectedExercise.icon}
+              </div>
+              <div>
+                <h4 className="font-medium text-foreground">Selected Exercise: {selectedExercise.name}</h4>
+                <p className="text-sm text-muted-foreground">{selectedExercise.description}</p>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </Card>
+  );
+};
