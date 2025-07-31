@@ -37,8 +37,10 @@ const Index = () => {
               
               <nav className="hidden md:flex items-center gap-6">
                 <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Dashboard</a>
+                <Link to="/exercise" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Exercise</Link>
+                <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Upload</a>
+                <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Drill</a>
                 <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Analytics</a>
-                <Link to="/exercise" className="text-sm text-foreground font-medium">Exercise</Link>
                 <Button size="sm" className="bg-primary hover:bg-primary/80">
                   Get Started
                 </Button>
