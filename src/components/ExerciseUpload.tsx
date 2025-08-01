@@ -52,14 +52,18 @@ export const ExerciseUpload = ({ selectedExercise }: ExerciseUploadProps) => {
 
   const handleStartAnalysis = () => {
     if (uploadedFile) {
+      // Create a URL for the uploaded file and store it in sessionStorage
+      const videoUrl = URL.createObjectURL(uploadedFile);
+      sessionStorage.setItem('uploadedVideoUrl', videoUrl);
+      sessionStorage.setItem('uploadedVideoName', uploadedFile.name);
+      
       toast({
         title: "Analysis Started",
         description: "Your video is being processed. Results will be available shortly.",
       });
-      // Simulate analysis
-      setTimeout(() => {
-        navigate(`/live-camera?exercise=${encodeURIComponent(selectedExercise.name)}&analysis=true`);
-      }, 2000);
+      
+      // Navigate to live camera page with video parameter
+      navigate(`/live-camera?exercise=${encodeURIComponent(selectedExercise.name)}&mode=upload`);
     }
   };
 
