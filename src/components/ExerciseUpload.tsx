@@ -9,6 +9,8 @@ import {
   Zap,
   Target
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { toast } from '@/hooks/use-toast';
 
 interface ExerciseUploadProps {
   selectedExercise: any;
@@ -17,6 +19,7 @@ interface ExerciseUploadProps {
 export const ExerciseUpload = ({ selectedExercise }: ExerciseUploadProps) => {
   const [isDragging, setIsDragging] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const navigate = useNavigate();
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -40,6 +43,23 @@ export const ExerciseUpload = ({ selectedExercise }: ExerciseUploadProps) => {
     const file = e.target.files?.[0];
     if (file) {
       setUploadedFile(file);
+    }
+  };
+
+  const handleRecordLive = () => {
+    navigate(`/live-camera?exercise=${encodeURIComponent(selectedExercise.name)}`);
+  };
+
+  const handleStartAnalysis = () => {
+    if (uploadedFile) {
+      toast({
+        title: "Analysis Started",
+        description: "Your video is being processed. Results will be available shortly.",
+      });
+      // Simulate analysis
+      setTimeout(() => {
+        navigate(`/live-camera?exercise=${encodeURIComponent(selectedExercise.name)}&analysis=true`);
+      }, 2000);
     }
   };
 
@@ -147,6 +167,7 @@ export const ExerciseUpload = ({ selectedExercise }: ExerciseUploadProps) => {
           <Button 
             variant="outline" 
             className="flex-1 bg-secondary/50 border-border/50 hover:bg-secondary/70"
+            onClick={handleRecordLive}
           >
             <PlayCircle className="w-4 h-4 mr-2" />
             Record Live Video
@@ -154,6 +175,7 @@ export const ExerciseUpload = ({ selectedExercise }: ExerciseUploadProps) => {
           <Button 
             className="flex-1 bg-gradient-to-r from-primary to-accent hover:from-primary/80 hover:to-accent/80"
             disabled={!uploadedFile}
+            onClick={handleStartAnalysis}
           >
             <Zap className="w-4 h-4 mr-2" />
             Start Analysis
