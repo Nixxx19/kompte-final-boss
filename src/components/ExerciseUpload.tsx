@@ -68,8 +68,8 @@ export const ExerciseUpload = ({ selectedExercise }: ExerciseUploadProps) => {
   };
 
   return (
-    <Card className="relative backdrop-blur-xl bg-glass border-glass-border p-6 shadow-2xl">
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-accent/5 rounded-lg" />
+    <Card className="premium-card p-6">
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-accent/3 rounded-lg" />
       <div className="relative z-10">
         <div className="text-center mb-6">
           <div className="flex items-center justify-center gap-3 mb-4">
@@ -86,12 +86,22 @@ export const ExerciseUpload = ({ selectedExercise }: ExerciseUploadProps) => {
         {/* Upload Process Steps */}
         <div className="flex items-center justify-center gap-4 mb-8">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-medium">
-              1
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-500 ${
+              uploadedFile 
+                ? 'bg-green-500 text-white scale-110' 
+                : 'bg-primary text-primary-foreground'
+            }`}>
+              {uploadedFile ? '✓' : '1'}
             </div>
-            <span className="text-sm font-medium text-primary">Upload Video</span>
+            <span className={`text-sm font-medium transition-colors duration-300 ${
+              uploadedFile ? 'text-green-500' : 'text-primary'
+            }`}>
+              Upload Video
+            </span>
           </div>
-          <div className="w-8 h-0.5 bg-border"></div>
+          <div className={`w-8 h-0.5 transition-colors duration-500 ${
+            uploadedFile ? 'bg-green-500/50' : 'bg-border'
+          }`}></div>
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-full bg-muted text-muted-foreground flex items-center justify-center text-sm font-medium">
               2
@@ -120,9 +130,9 @@ export const ExerciseUpload = ({ selectedExercise }: ExerciseUploadProps) => {
         >
           <div className="text-center">
             {uploadedFile ? (
-              <div className="space-y-4">
+              <div className="space-y-4 animate-fade-in">
                 <div className="flex items-center justify-center">
-                  <div className="p-4 rounded-full bg-green-500/20">
+                  <div className="p-4 rounded-full bg-green-500/20 border-2 border-green-500/30 pulse-glow">
                     <FileVideo className="w-8 h-8 text-green-400" />
                   </div>
                 </div>
@@ -131,6 +141,10 @@ export const ExerciseUpload = ({ selectedExercise }: ExerciseUploadProps) => {
                   <p className="text-sm text-muted-foreground">
                     {(uploadedFile.size / (1024 * 1024)).toFixed(2)} MB
                   </p>
+                  <div className="mt-2 flex items-center gap-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    <span className="text-xs text-green-400 font-medium">Ready for analysis</span>
+                  </div>
                 </div>
               </div>
             ) : (
@@ -177,7 +191,7 @@ export const ExerciseUpload = ({ selectedExercise }: ExerciseUploadProps) => {
             Record Live Video
           </Button>
           <Button 
-            className="flex-1 bg-gradient-to-r from-primary to-accent hover:from-primary/80 hover:to-accent/80"
+            className="flex-1 btn-premium"
             disabled={!uploadedFile}
             onClick={handleStartAnalysis}
           >
