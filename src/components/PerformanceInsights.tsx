@@ -404,7 +404,7 @@ const PerformanceInsights = () => {
 
         {/* AI Stamina Insights */}
         <div className="mt-8">
-          <Card className="group hover:shadow-xl transition-all duration-500 border-border/50 bg-card/80 backdrop-blur-sm">
+          <Card className="group hover:shadow-xl transition-all duration-500 border-0 bg-gradient-to-br from-card/90 via-card/80 to-card/70 backdrop-blur-xl">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-2xl">
                 <Activity className="w-7 h-8 text-primary" />
@@ -417,25 +417,25 @@ const PerformanceInsights = () => {
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-4">
-                  <div className="flex items-start gap-3 p-4 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
-                    <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0">
+                  <div className="flex items-start gap-3 p-4 rounded-lg bg-primary/5 border border-primary/20 backdrop-blur-sm">
+                    <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
                       <TrendingUp className="w-4 h-4 text-white" />
                     </div>
                     <div>
-                      <h4 className="font-semibold text-blue-900 dark:text-blue-100">Endurance Training</h4>
-                      <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
+                      <h4 className="font-semibold text-foreground">Endurance Training</h4>
+                      <p className="text-sm text-muted-foreground mt-1">
                         Focus on interval training to improve stamina recovery between rallies.
                       </p>
                     </div>
                   </div>
                   
-                  <div className="flex items-start gap-3 p-4 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
-                    <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
+                  <div className="flex items-start gap-3 p-4 rounded-lg bg-accent/5 border border-accent/20 backdrop-blur-sm">
+                    <div className="w-8 h-8 rounded-full bg-accent flex items-center justify-center flex-shrink-0">
                       <Clock className="w-4 h-4 text-white" />
                     </div>
                     <div>
-                      <h4 className="font-semibold text-green-900 dark:text-green-100">Pacing Strategy</h4>
-                      <p className="text-sm text-green-700 dark:text-green-300 mt-1">
+                      <h4 className="font-semibold text-foreground">Pacing Strategy</h4>
+                      <p className="text-sm text-muted-foreground mt-1">
                         Your stamina drops significantly after 20 minutes. Consider shorter, more intense sessions.
                       </p>
                     </div>

@@ -104,7 +104,7 @@ const LiveCamera = () => {
         {/* Header */}
         <header className="border-b border-border/50 backdrop-blur-xl bg-background/80">
           <div className="container mx-auto px-4 py-4">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col md:flex-row items-start md:items-center gap-4 md:justify-between">
               <div className="flex items-center gap-4">
                 <Link to="/exercise">
                   <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
@@ -113,8 +113,10 @@ const LiveCamera = () => {
                   </Button>
                 </Link>
                 <div>
-                  <h1 className="text-2xl font-bold text-foreground">{exerciseName} Analysis</h1>
-                  <p className="text-sm text-muted-foreground">Live camera analysis</p>
+                  <h1 className="text-xl md:text-2xl font-bold text-foreground">{exerciseName} Analysis</h1>
+                  <p className="text-sm text-muted-foreground">
+                    {mode === 'upload' ? 'Video Analysis' : 'Live Camera Analysis'}
+                  </p>
                 </div>
               </div>
             </div>
@@ -126,7 +128,7 @@ const LiveCamera = () => {
           <div className="grid grid-cols-1 gap-6">
             {/* Upper Half - Camera Feed */}
             <section className="relative">
-              <Card className="overflow-hidden border-0 bg-gradient-to-br from-card/80 to-card/60 backdrop-blur-xl shadow-2xl">
+              <Card className="overflow-hidden border-0 glass-card shadow-2xl">
                 <div className="relative aspect-video w-full">
                   {mode === 'upload' && uploadedVideoUrl ? (
                     <video
@@ -162,18 +164,18 @@ const LiveCamera = () => {
                     <Button
                       onClick={toggleRecording}
                       size="lg"
-                      className={`rounded-full w-16 h-16 ${
+                      className={`rounded-full w-12 h-12 md:w-16 md:h-16 ${
                         isRecording 
                           ? 'bg-red-500 hover:bg-red-600' 
                           : mode === 'upload' 
-                            ? 'bg-gradient-to-r from-kompte-purple to-kompte-purple/80 hover:from-kompte-purple/90 hover:to-kompte-purple/70' 
+                            ? 'bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90' 
                             : 'bg-primary hover:bg-primary/90'
                       }`}
                     >
                       {mode === 'upload' ? (
-                        <Video className="w-6 h-6" />
+                        <Video className="w-5 h-5 md:w-6 md:h-6" />
                       ) : (
-                        isRecording ? <VideoOff className="w-6 h-6" /> : <Video className="w-6 h-6" />
+                        isRecording ? <VideoOff className="w-5 h-5 md:w-6 md:h-6" /> : <Video className="w-5 h-5 md:w-6 md:h-6" />
                       )}
                     </Button>
                     
@@ -182,9 +184,9 @@ const LiveCamera = () => {
                         onClick={resetSession}
                         variant="outline"
                         size="lg"
-                        className="rounded-full bg-background/80 backdrop-blur-sm"
+                        className="rounded-full glass-card w-12 h-12 md:w-16 md:h-16"
                       >
-                        <RotateCcw className="w-5 h-5" />
+                        <RotateCcw className="w-4 h-4 md:w-5 md:h-5" />
                       </Button>
                     )}
                   </div>
@@ -197,61 +199,61 @@ const LiveCamera = () => {
               <>
                 {/* Premium Results Summary */}
                 <section className="animate-fade-in">
-                  <Card className="relative overflow-hidden backdrop-blur-xl bg-gradient-to-br from-card/90 via-card/80 to-card/70 border-0 shadow-2xl glow-primary">
-                    <div className="absolute inset-0 bg-gradient-to-br from-kompte-purple/5 via-transparent to-velocity-orange/5"></div>
-                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-kompte-purple via-velocity-orange to-accuracy-green"></div>
+                  <Card className="relative overflow-hidden backdrop-blur-xl bg-glass-light border-0 shadow-2xl">
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5"></div>
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary via-accent to-primary"></div>
                     
                     <CardHeader className="relative">
                       <div className="flex items-center justify-between">
                         <div>
-                          <CardTitle className="text-2xl font-bold bg-gradient-to-r from-foreground to-kompte-purple bg-clip-text text-transparent mb-2">
+                          <CardTitle className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent mb-2">
                             Session Results
                           </CardTitle>
                           <p className="text-sm text-muted-foreground">
                             {mode === 'upload' ? 'Video Analysis Complete' : 'Live Analysis Complete'}
                           </p>
                         </div>
-                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-kompte-purple/20 to-kompte-purple/30 flex items-center justify-center">
-                          <Trophy className="w-6 h-6 text-kompte-purple" />
+                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-primary/30 flex items-center justify-center">
+                          <Trophy className="w-6 h-6 text-primary" />
                         </div>
                       </div>
                     </CardHeader>
                     
                     <CardContent className="relative">
-                      <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-8">
-                        <div className="group text-center p-6 rounded-2xl bg-gradient-to-br from-kompte-purple/10 to-kompte-purple/5 border border-kompte-purple/20 hover:shadow-lg hover:scale-105 transition-all duration-300">
-                          <div className="text-xs uppercase tracking-wider text-kompte-purple font-semibold mb-2">Name</div>
-                          <div className="text-xl font-bold text-foreground">{playerData.name}</div>
+                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4 mb-8">
+                        <div className="group text-center p-4 md:p-6 rounded-2xl glass-card hover:shadow-lg hover:scale-105 transition-all duration-300">
+                          <div className="text-xs uppercase tracking-wider text-primary font-semibold mb-2">Name</div>
+                          <div className="text-lg md:text-xl font-bold text-foreground">{playerData.name}</div>
                         </div>
                         
-                        <div className="group text-center p-6 rounded-2xl bg-gradient-to-br from-velocity-orange/10 to-velocity-orange/5 border border-velocity-orange/20 hover:shadow-lg hover:scale-105 transition-all duration-300">
-                          <div className="text-xs uppercase tracking-wider text-velocity-orange font-semibold mb-2">Age</div>
-                          <div className="text-xl font-bold text-foreground">{playerData.age}</div>
+                        <div className="group text-center p-4 md:p-6 rounded-2xl glass-card hover:shadow-lg hover:scale-105 transition-all duration-300">
+                          <div className="text-xs uppercase tracking-wider text-accent font-semibold mb-2">Age</div>
+                          <div className="text-lg md:text-xl font-bold text-foreground">{playerData.age}</div>
                         </div>
                         
-                        <div className="group text-center p-6 rounded-2xl bg-gradient-to-br from-data-blue/10 to-data-blue/5 border border-data-blue/20 hover:shadow-lg hover:scale-105 transition-all duration-300">
-                          <div className="text-xs uppercase tracking-wider text-data-blue font-semibold mb-2">Reps</div>
-                          <div className="text-xl font-bold text-foreground">{playerData.reps}</div>
+                        <div className="group text-center p-4 md:p-6 rounded-2xl glass-card hover:shadow-lg hover:scale-105 transition-all duration-300">
+                          <div className="text-xs uppercase tracking-wider text-primary font-semibold mb-2">Reps</div>
+                          <div className="text-lg md:text-xl font-bold text-foreground">{playerData.reps}</div>
                         </div>
                         
-                        <div className="group text-center p-6 rounded-2xl bg-gradient-to-br from-accuracy-green/10 to-accuracy-green/5 border border-accuracy-green/20 hover:shadow-lg hover:scale-105 transition-all duration-300">
-                          <div className="text-xs uppercase tracking-wider text-accuracy-green font-semibold mb-2">Stamina</div>
-                          <div className="text-xl font-bold text-foreground">{playerData.stamina}%</div>
+                        <div className="group text-center p-4 md:p-6 rounded-2xl glass-card hover:shadow-lg hover:scale-105 transition-all duration-300">
+                          <div className="text-xs uppercase tracking-wider text-accent font-semibold mb-2">Stamina</div>
+                          <div className="text-lg md:text-xl font-bold text-foreground">{playerData.stamina}%</div>
                         </div>
                         
-                        <div className="group text-center p-6 rounded-2xl bg-gradient-to-br from-kompte-purple/10 to-kompte-purple/5 border border-kompte-purple/20 hover:shadow-lg hover:scale-105 transition-all duration-300">
-                          <div className="text-xs uppercase tracking-wider text-kompte-purple font-semibold mb-2">Calories</div>
-                          <div className="text-xl font-bold text-foreground">{playerData.calories}</div>
+                        <div className="group text-center p-4 md:p-6 rounded-2xl glass-card hover:shadow-lg hover:scale-105 transition-all duration-300">
+                          <div className="text-xs uppercase tracking-wider text-primary font-semibold mb-2">Calories</div>
+                          <div className="text-lg md:text-xl font-bold text-foreground">{playerData.calories}</div>
                         </div>
                         
-                        <div className="group text-center p-6 rounded-2xl bg-gradient-to-br from-velocity-orange/10 to-velocity-orange/5 border border-velocity-orange/20 hover:shadow-lg hover:scale-105 transition-all duration-300">
-                          <div className="text-xs uppercase tracking-wider text-velocity-orange font-semibold mb-2">Form</div>
-                          <div className="text-xl font-bold text-foreground">{playerData.correctForm}%</div>
+                        <div className="group text-center p-4 md:p-6 rounded-2xl glass-card hover:shadow-lg hover:scale-105 transition-all duration-300">
+                          <div className="text-xs uppercase tracking-wider text-accent font-semibold mb-2">Form</div>
+                          <div className="text-lg md:text-xl font-bold text-foreground">{playerData.correctForm}%</div>
                         </div>
                       </div>
                       
                       <div className="flex justify-center">
-                        <Button className="gap-2 bg-gradient-to-r from-kompte-purple to-velocity-orange hover:from-kompte-purple/90 hover:to-velocity-orange/90 text-white border-0 px-8 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
+                        <Button className="gap-2 bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white border-0 px-6 md:px-8 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
                           <Download className="w-5 h-5" />
                           Download Premium Report
                         </Button>
