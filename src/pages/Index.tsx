@@ -67,39 +67,22 @@ const Index = () => {
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div className="space-y-8 animate-fade-in">
               <div className="space-y-6">
-                <div className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-primary/10 border border-primary/25 text-primary text-sm font-medium shadow-lg backdrop-blur-sm">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium">
                   <Sparkles className="w-4 h-4" />
-                  <span className="gradient-text font-semibold">Trusted by Elite Athletes Worldwide</span>
+                  Crafting Champions Since 2022
                 </div>
                 
-                <h1 className="text-6xl lg:text-8xl font-bold text-foreground leading-tight tracking-tight">
+                <h1 className="text-6xl lg:text-7xl font-bold text-foreground leading-tight">
                   KOMPTE<span className="gradient-text">.</span>
                 </h1>
                 
-                <h2 className="text-3xl lg:text-4xl font-semibold text-foreground opacity-90 tracking-wide">
-                  Ready Set <span className="gradient-text">KOMPTE</span>.
+                <h2 className="text-3xl font-semibold text-foreground opacity-90">
+                  Ready Set KOMPTE.
                 </h2>
                 
-                <p className="text-xl text-muted-foreground max-w-lg leading-relaxed font-medium">
-                  Transform your training with professional-grade AI analysis. Upload exercise videos to unlock personalized insights, form corrections, and performance optimization that elite athletes trust.
+                <p className="text-lg text-muted-foreground max-w-lg leading-relaxed">
+                  Upload your exercise videos to unlock professional-grade performance insights with AI-powered analysis and real-time visualization.
                 </p>
-                
-                <div className="flex items-center gap-8 pt-4">
-                  <div className="text-center">
-                    <div className="text-2xl font-bold gradient-text">10K+</div>
-                    <div className="text-sm text-muted-foreground">Athletes</div>
-                  </div>
-                  <div className="w-px h-12 bg-border"></div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold gradient-text">1M+</div>
-                    <div className="text-sm text-muted-foreground">Analyses</div>
-                  </div>
-                  <div className="w-px h-12 bg-border"></div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold gradient-text">95%</div>
-                    <div className="text-sm text-muted-foreground">Accuracy</div>
-                  </div>
-                </div>
               </div>
               
               <div className="flex gap-6">
@@ -119,20 +102,15 @@ const Index = () => {
             
             {/* Enhanced Hero Visual */}
             <div className="relative animate-scale-in" style={{animationDelay: '0.2s'}}>
-              <div className="absolute inset-0 bg-gradient-to-r from-primary/30 to-accent/30 rounded-3xl blur-3xl animate-pulse" />
-              <Card className="premium-card p-16 shadow-2xl relative float-animation">
-                <div className="absolute inset-0 bg-gradient-hero rounded-lg" />
+              <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-accent/20 rounded-3xl blur-3xl" />
+              <Card className="glass-card p-12 shadow-2xl relative float-animation">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-accent/5 rounded-lg" />
                 <div className="relative z-10 text-center">
-                  <div className="w-40 h-40 mx-auto mb-8 rounded-3xl bg-gradient-to-br from-primary/40 to-accent/40 flex items-center justify-center pulse-glow shadow-luxury">
-                    <Play className="w-20 h-20 text-white drop-shadow-lg" />
+                  <div className="w-32 h-32 mx-auto mb-8 rounded-3xl bg-gradient-to-br from-primary/30 to-accent/30 flex items-center justify-center pulse-glow">
+                    <Play className="w-16 h-16 text-primary" />
                   </div>
-                  <h3 className="text-2xl font-bold text-foreground mb-4 gradient-text">Experience The Future</h3>
-                  <p className="text-muted-foreground text-lg font-medium">Real-time AI analysis with Olympic-level precision</p>
-                  <div className="mt-6 flex justify-center">
-                    <div className="px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium">
-                      ✨ AI-Powered Excellence
-                    </div>
-                  </div>
+                  <h3 className="text-xl font-semibold text-foreground mb-3">See Analytics in Action</h3>
+                  <p className="text-muted-foreground">Real-time performance tracking with AI precision</p>
                 </div>
               </Card>
             </div>
@@ -146,18 +124,12 @@ const Index = () => {
               <Target className="w-4 h-4" />
               Performance Features
             </div>
-            <h3 className="text-5xl lg:text-6xl font-bold text-foreground mb-8 tracking-tight">
-              AI-Powered <span className="gradient-text">Excellence</span>
+            <h3 className="text-4xl font-bold text-foreground mb-6">
+              AI-Powered <span className="gradient-text">Analytics</span>
             </h3>
-            <p className="text-xl text-muted-foreground max-w-4xl mx-auto leading-relaxed font-medium">
-              Revolutionary machine learning algorithms deliver precision analysis that rivals Olympic-level coaching. Transform your performance with insights trusted by professional athletes worldwide.
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+              Advanced machine learning algorithms to track, analyze, and improve your exercise performance with unprecedented accuracy
             </p>
-            <div className="mt-8 flex justify-center">
-              <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-accent/10 border border-accent/25 text-accent text-sm font-medium shadow-lg backdrop-blur-sm">
-                <Target className="w-4 h-4" />
-                <span className="font-semibold">99.7% Movement Recognition Accuracy</span>
-              </div>
-            </div>
           </div>
           
           <div className="grid md:grid-cols-3 gap-8">
