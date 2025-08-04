@@ -14,9 +14,10 @@ import { toast } from '@/hooks/use-toast';
 
 interface ExerciseUploadProps {
   selectedExercise: any;
+  onVideoUpload?: (uploaded: boolean) => void;
 }
 
-export const ExerciseUpload = ({ selectedExercise }: ExerciseUploadProps) => {
+export const ExerciseUpload = ({ selectedExercise, onVideoUpload }: ExerciseUploadProps) => {
   const [isDragging, setIsDragging] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const navigate = useNavigate();
@@ -36,6 +37,7 @@ export const ExerciseUpload = ({ selectedExercise }: ExerciseUploadProps) => {
     const files = e.dataTransfer.files;
     if (files[0]) {
       setUploadedFile(files[0]);
+      onVideoUpload?.(true);
     }
   };
 
@@ -43,6 +45,7 @@ export const ExerciseUpload = ({ selectedExercise }: ExerciseUploadProps) => {
     const file = e.target.files?.[0];
     if (file) {
       setUploadedFile(file);
+      onVideoUpload?.(true);
     }
   };
 
@@ -84,36 +87,36 @@ export const ExerciseUpload = ({ selectedExercise }: ExerciseUploadProps) => {
         </div>
 
         {/* Upload Process Steps */}
-        <div className="flex items-center justify-center gap-4 mb-8">
-          <div className="flex items-center gap-2">
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-500 ${
+        <div className="flex items-center justify-center gap-2 sm:gap-4 mb-8 px-2">
+          <div className="flex items-center gap-1 sm:gap-2">
+            <div className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-medium transition-all duration-500 ${
               uploadedFile 
                 ? 'bg-green-500 text-white scale-110' 
                 : 'bg-primary text-primary-foreground'
             }`}>
               {uploadedFile ? '✓' : '1'}
             </div>
-            <span className={`text-sm font-medium transition-colors duration-300 ${
+            <span className={`text-xs sm:text-sm font-medium transition-colors duration-300 hidden sm:block ${
               uploadedFile ? 'text-green-500' : 'text-primary'
             }`}>
               Upload Video
             </span>
           </div>
-          <div className={`w-8 h-0.5 transition-colors duration-500 ${
+          <div className={`w-4 sm:w-8 h-0.5 transition-colors duration-500 ${
             uploadedFile ? 'bg-green-500/50' : 'bg-border'
           }`}></div>
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-muted text-muted-foreground flex items-center justify-center text-sm font-medium">
+          <div className="flex items-center gap-1 sm:gap-2">
+            <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-muted text-muted-foreground flex items-center justify-center text-xs sm:text-sm font-medium">
               2
             </div>
-            <span className="text-sm text-muted-foreground">AI Processing</span>
+            <span className="text-xs sm:text-sm text-muted-foreground hidden sm:block">AI Processing</span>
           </div>
-          <div className="w-8 h-0.5 bg-border"></div>
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-muted text-muted-foreground flex items-center justify-center text-sm font-medium">
+          <div className="w-4 sm:w-8 h-0.5 bg-border"></div>
+          <div className="flex items-center gap-1 sm:gap-2">
+            <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-muted text-muted-foreground flex items-center justify-center text-xs sm:text-sm font-medium">
               3
             </div>
-            <span className="text-sm text-muted-foreground">View Results</span>
+            <span className="text-xs sm:text-sm text-muted-foreground hidden sm:block">View Results</span>
           </div>
         </div>
 
@@ -181,7 +184,7 @@ export const ExerciseUpload = ({ selectedExercise }: ExerciseUploadProps) => {
         </p>
 
         {/* Action Buttons */}
-        <div className="flex gap-4 mt-8">
+        <div className="flex flex-col sm:flex-row gap-4 mt-8">
           <Button 
             variant="outline" 
             className="flex-1 bg-secondary/50 border-border/50 hover:bg-secondary/70"

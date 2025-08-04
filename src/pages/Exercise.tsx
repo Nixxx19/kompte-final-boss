@@ -9,6 +9,7 @@ import { Link } from 'react-router-dom';
 const Exercise = () => {
   const [playerDetails, setPlayerDetails] = useState<PlayerDetailsType | null>(null);
   const [selectedExercise, setSelectedExercise] = useState<ExerciseType | null>(null);
+  const [videoUploaded, setVideoUploaded] = useState(false);
 
   return (
     <div className="min-h-screen bg-background overflow-hidden">
@@ -69,7 +70,10 @@ const Exercise = () => {
             {/* Upload Section - Only show if exercise is selected */}
             {selectedExercise && (
               <section>
-                <ExerciseUpload selectedExercise={selectedExercise} />
+                <ExerciseUpload 
+                  selectedExercise={selectedExercise} 
+                  onVideoUpload={setVideoUploaded}
+                />
               </section>
             )}
 
@@ -79,38 +83,42 @@ const Exercise = () => {
                 <div className="absolute inset-0 bg-gradient-to-br from-accent/10 to-primary/5 rounded-lg" />
                 <div className="relative z-10">
                   <h3 className="text-lg font-semibold text-foreground mb-4">Session Progress</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="text-center">
-                      <div className={`w-8 h-8 rounded-full mx-auto mb-2 flex items-center justify-center text-sm font-medium ${
-                        playerDetails?.name ? 'bg-green-500/20 text-green-400' : 'bg-muted text-muted-foreground'
-                      }`}>
-                        ✓
-                      </div>
-                      <p className="text-sm font-medium">Player Details</p>
-                      <p className="text-xs text-muted-foreground">
-                        {playerDetails?.name ? 'Completed' : 'Pending'}
-                      </p>
-                    </div>
+                  <div className="grid grid-cols-3 gap-2 sm:gap-4">
+                     <div className="text-center">
+                       <div className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full mx-auto mb-1 sm:mb-2 flex items-center justify-center text-xs sm:text-sm font-medium ${
+                         playerDetails?.name ? 'bg-green-500/20 text-green-400' : 'bg-muted text-muted-foreground'
+                       }`}>
+                         ✓
+                       </div>
+                       <p className="text-xs sm:text-sm font-medium">Player Details</p>
+                       <p className="text-xs text-muted-foreground">
+                         {playerDetails?.name ? 'Completed' : 'Pending'}
+                       </p>
+                     </div>
                     
-                    <div className="text-center">
-                      <div className={`w-8 h-8 rounded-full mx-auto mb-2 flex items-center justify-center text-sm font-medium ${
-                        selectedExercise ? 'bg-green-500/20 text-green-400' : 'bg-muted text-muted-foreground'
-                      }`}>
-                        ✓
-                      </div>
-                      <p className="text-sm font-medium">Exercise Selection</p>
-                      <p className="text-xs text-muted-foreground">
-                        {selectedExercise ? selectedExercise.name : 'Pending'}
-                      </p>
-                    </div>
+                     <div className="text-center">
+                       <div className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full mx-auto mb-1 sm:mb-2 flex items-center justify-center text-xs sm:text-sm font-medium ${
+                         selectedExercise ? 'bg-green-500/20 text-green-400' : 'bg-muted text-muted-foreground'
+                       }`}>
+                         ✓
+                       </div>
+                       <p className="text-xs sm:text-sm font-medium">Exercise Selection</p>
+                       <p className="text-xs text-muted-foreground">
+                         {selectedExercise ? selectedExercise.name : 'Pending'}
+                       </p>
+                     </div>
                     
-                    <div className="text-center">
-                      <div className="w-8 h-8 rounded-full mx-auto mb-2 flex items-center justify-center text-sm font-medium bg-muted text-muted-foreground">
-                        3
-                      </div>
-                      <p className="text-sm font-medium">Video Upload</p>
-                      <p className="text-xs text-muted-foreground">Pending</p>
-                    </div>
+                     <div className="text-center">
+                       <div className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full mx-auto mb-1 sm:mb-2 flex items-center justify-center text-xs sm:text-sm font-medium ${
+                         videoUploaded ? 'bg-green-500/20 text-green-400' : 'bg-muted text-muted-foreground'
+                       }`}>
+                         {videoUploaded ? '✓' : '3'}
+                       </div>
+                       <p className="text-xs sm:text-sm font-medium">Video Upload</p>
+                       <p className="text-xs text-muted-foreground">
+                         {videoUploaded ? 'Completed' : 'Pending'}
+                       </p>
+                     </div>
                   </div>
                 </div>
               </div>
