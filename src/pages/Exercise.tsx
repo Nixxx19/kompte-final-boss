@@ -79,44 +79,44 @@ const Exercise = () => {
 
             {/* Progress Summary */}
             <section>
-              <div className="relative backdrop-blur-xl bg-glass border-glass-border rounded-lg p-6 shadow-2xl">
+              <div className="relative backdrop-blur-xl bg-glass border-glass-border rounded-lg p-4 sm:p-6 shadow-2xl">
                 <div className="absolute inset-0 bg-gradient-to-br from-accent/10 to-primary/5 rounded-lg" />
                 <div className="relative z-10">
-                  <h3 className="text-lg font-semibold text-foreground mb-4">Session Progress</h3>
+                  <h3 className="text-base sm:text-lg font-semibold text-foreground mb-4">Session Progress</h3>
                   <div className="grid grid-cols-3 gap-2 sm:gap-4">
                      <div className="text-center">
-                       <div className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full mx-auto mb-1 sm:mb-2 flex items-center justify-center text-xs sm:text-sm font-medium ${
-                         playerDetails?.name ? 'bg-green-500/20 text-green-400' : 'bg-muted text-muted-foreground'
+                       <div className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full mx-auto mb-1 sm:mb-2 flex items-center justify-center text-xs sm:text-sm font-medium transition-all duration-500 ${
+                         playerDetails?.name ? 'bg-green-500/20 text-green-400 shadow-lg shadow-green-500/20' : 'bg-muted text-muted-foreground'
                        }`}>
-                         ✓
+                         {playerDetails?.name ? '✓' : '1'}
                        </div>
-                       <p className="text-xs sm:text-sm font-medium">Player Details</p>
+                       <p className="text-xs sm:text-sm font-medium">Player</p>
                        <p className="text-xs text-muted-foreground">
-                         {playerDetails?.name ? 'Completed' : 'Pending'}
+                         {playerDetails?.name ? 'Complete' : 'Pending'}
                        </p>
                      </div>
                     
                      <div className="text-center">
-                       <div className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full mx-auto mb-1 sm:mb-2 flex items-center justify-center text-xs sm:text-sm font-medium ${
-                         selectedExercise ? 'bg-green-500/20 text-green-400' : 'bg-muted text-muted-foreground'
+                       <div className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full mx-auto mb-1 sm:mb-2 flex items-center justify-center text-xs sm:text-sm font-medium transition-all duration-500 ${
+                         selectedExercise ? 'bg-green-500/20 text-green-400 shadow-lg shadow-green-500/20' : 'bg-muted text-muted-foreground'
                        }`}>
-                         ✓
+                         {selectedExercise ? '✓' : '2'}
                        </div>
-                       <p className="text-xs sm:text-sm font-medium">Exercise Selection</p>
-                       <p className="text-xs text-muted-foreground">
+                       <p className="text-xs sm:text-sm font-medium">Exercise</p>
+                       <p className="text-xs text-muted-foreground truncate">
                          {selectedExercise ? selectedExercise.name : 'Pending'}
                        </p>
                      </div>
                     
                      <div className="text-center">
-                       <div className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full mx-auto mb-1 sm:mb-2 flex items-center justify-center text-xs sm:text-sm font-medium ${
-                         videoUploaded ? 'bg-green-500/20 text-green-400' : 'bg-muted text-muted-foreground'
+                       <div className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full mx-auto mb-1 sm:mb-2 flex items-center justify-center text-xs sm:text-sm font-medium transition-all duration-500 ${
+                         videoUploaded ? 'bg-green-500/20 text-green-400 shadow-lg shadow-green-500/20' : 'bg-muted text-muted-foreground'
                        }`}>
                          {videoUploaded ? '✓' : '3'}
                        </div>
-                       <p className="text-xs sm:text-sm font-medium">Video Upload</p>
+                       <p className="text-xs sm:text-sm font-medium">Video</p>
                        <p className="text-xs text-muted-foreground">
-                         {videoUploaded ? 'Completed' : 'Pending'}
+                         {videoUploaded ? 'Complete' : 'Pending'}
                        </p>
                      </div>
                   </div>

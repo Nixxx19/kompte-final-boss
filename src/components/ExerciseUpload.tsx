@@ -37,6 +37,11 @@ export const ExerciseUpload = ({ selectedExercise, onVideoUpload }: ExerciseUplo
     const files = e.dataTransfer.files;
     if (files[0]) {
       setUploadedFile(files[0]);
+      // Add toast notification
+      toast({
+        title: "Video Uploaded",
+        description: `${files[0].name} uploaded successfully`,
+      });
       onVideoUpload?.(true);
     }
   };
@@ -45,6 +50,11 @@ export const ExerciseUpload = ({ selectedExercise, onVideoUpload }: ExerciseUplo
     const file = e.target.files?.[0];
     if (file) {
       setUploadedFile(file);
+      // Add toast notification
+      toast({
+        title: "Video Uploaded",
+        description: `${file.name} uploaded successfully`,
+      });
       onVideoUpload?.(true);
     }
   };
@@ -87,36 +97,36 @@ export const ExerciseUpload = ({ selectedExercise, onVideoUpload }: ExerciseUplo
         </div>
 
         {/* Upload Process Steps */}
-        <div className="flex items-center justify-center gap-2 sm:gap-4 mb-8 px-2">
-          <div className="flex items-center gap-1 sm:gap-2">
+        <div className="flex items-center justify-center gap-1 sm:gap-4 mb-8 px-2 overflow-x-auto">
+          <div className="flex items-center gap-1 sm:gap-2 min-w-fit">
             <div className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-medium transition-all duration-500 ${
               uploadedFile 
-                ? 'bg-green-500 text-white scale-110' 
+                ? 'bg-green-500 text-white scale-110 shadow-lg shadow-green-500/30' 
                 : 'bg-primary text-primary-foreground'
             }`}>
               {uploadedFile ? '✓' : '1'}
             </div>
-            <span className={`text-xs sm:text-sm font-medium transition-colors duration-300 hidden sm:block ${
+            <span className={`text-xs sm:text-sm font-medium transition-colors duration-300 whitespace-nowrap ${
               uploadedFile ? 'text-green-500' : 'text-primary'
             }`}>
-              Upload Video
+              Upload
             </span>
           </div>
-          <div className={`w-4 sm:w-8 h-0.5 transition-colors duration-500 ${
+          <div className={`w-3 sm:w-8 h-0.5 transition-colors duration-500 ${
             uploadedFile ? 'bg-green-500/50' : 'bg-border'
           }`}></div>
-          <div className="flex items-center gap-1 sm:gap-2">
+          <div className="flex items-center gap-1 sm:gap-2 min-w-fit">
             <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-muted text-muted-foreground flex items-center justify-center text-xs sm:text-sm font-medium">
               2
             </div>
-            <span className="text-xs sm:text-sm text-muted-foreground hidden sm:block">AI Processing</span>
+            <span className="text-xs sm:text-sm text-muted-foreground whitespace-nowrap">Process</span>
           </div>
-          <div className="w-4 sm:w-8 h-0.5 bg-border"></div>
-          <div className="flex items-center gap-1 sm:gap-2">
+          <div className="w-3 sm:w-8 h-0.5 bg-border"></div>
+          <div className="flex items-center gap-1 sm:gap-2 min-w-fit">
             <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-muted text-muted-foreground flex items-center justify-center text-xs sm:text-sm font-medium">
               3
             </div>
-            <span className="text-xs sm:text-sm text-muted-foreground hidden sm:block">View Results</span>
+            <span className="text-xs sm:text-sm text-muted-foreground whitespace-nowrap">Results</span>
           </div>
         </div>
 
