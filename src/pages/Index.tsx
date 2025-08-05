@@ -85,32 +85,32 @@ const Index = () => {
                 </p>
               </div>
               
-              <div className="flex gap-6">
+              <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
                 <Link to="/exercise">
-                  <Button size="lg" className="btn-premium group text-lg px-8 py-4">
-                    <Play className="w-5 h-5 mr-3" />
+                  <Button size="lg" className="btn-premium group text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 w-full sm:w-auto">
+                    <Play className="w-4 sm:w-5 h-4 sm:h-5 mr-2 sm:mr-3" />
                     Start Analysis
-                    <ArrowRight className="w-5 h-5 ml-3 group-hover:translate-x-1 transition-transform" />
+                    <ArrowRight className="w-4 sm:w-5 h-4 sm:h-5 ml-2 sm:ml-3 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </Link>
-                <Button variant="outline" size="lg" className="glass-card hover:bg-secondary/70 text-lg px-8 py-4 group">
-                  <Play className="w-5 h-5 mr-3" />
+                <Button variant="outline" size="lg" className="glass-card hover:bg-secondary/70 text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 group w-full sm:w-auto">
+                  <Play className="w-4 sm:w-5 h-4 sm:h-5 mr-2 sm:mr-3" />
                   Watch Demo
                 </Button>
               </div>
             </div>
             
             {/* Enhanced Hero Visual */}
-            <div className="relative animate-scale-in" style={{animationDelay: '0.2s'}}>
+            <div className="relative animate-scale-in mt-8 lg:mt-0" style={{animationDelay: '0.2s'}}>
               <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-accent/20 rounded-3xl blur-3xl" />
-              <Card className="glass-card p-12 shadow-2xl relative float-animation">
+              <Card className="glass-card p-6 sm:p-8 lg:p-12 shadow-2xl relative float-animation">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-accent/5 rounded-lg" />
                 <div className="relative z-10 text-center">
-                  <div className="w-32 h-32 mx-auto mb-8 rounded-3xl bg-gradient-to-br from-primary/30 to-accent/30 flex items-center justify-center pulse-glow">
-                    <Play className="w-16 h-16 text-primary" />
+                  <div className="w-20 h-20 sm:w-24 sm:h-24 lg:w-32 lg:h-32 mx-auto mb-4 sm:mb-6 lg:mb-8 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-primary/30 to-accent/30 flex items-center justify-center pulse-glow">
+                    <Play className="w-8 h-8 sm:w-12 sm:h-12 lg:w-16 lg:h-16 text-primary" />
                   </div>
-                  <h3 className="text-xl font-semibold text-foreground mb-3">See Analytics in Action</h3>
-                  <p className="text-muted-foreground">Real-time performance tracking with AI precision</p>
+                  <h3 className="text-lg sm:text-xl font-semibold text-foreground mb-2 sm:mb-3">See Analytics in Action</h3>
+                  <p className="text-sm sm:text-base text-muted-foreground">Real-time performance tracking with AI precision</p>
                 </div>
               </Card>
             </div>
@@ -234,16 +234,16 @@ const Index = () => {
                 Join the elite athletes who trust KOMPTE AI to unlock their full potential with cutting-edge exercise analysis and personalized insights.
               </p>
               
-              <div className="flex flex-col sm:flex-row gap-6 justify-center">
+              <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center">
                 <Link to="/exercise">
-                  <Button size="lg" className="btn-premium group text-lg px-10 py-5">
-                    <Activity className="w-5 h-5 mr-3" />
+                  <Button size="lg" className="btn-premium group text-base sm:text-lg px-6 sm:px-10 py-4 sm:py-5 w-full sm:w-auto">
+                    <Activity className="w-4 sm:w-5 h-4 sm:h-5 mr-2 sm:mr-3" />
                     Start Your Analysis
-                    <ArrowRight className="w-5 h-5 ml-3 group-hover:translate-x-1 transition-transform" />
+                    <ArrowRight className="w-4 sm:w-5 h-4 sm:h-5 ml-2 sm:ml-3 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </Link>
-                <Button variant="outline" size="lg" className="glass-card hover:bg-secondary/70 text-lg px-10 py-5">
-                  <Play className="w-5 h-5 mr-3" />
+                <Button variant="outline" size="lg" className="glass-card hover:bg-secondary/70 text-base sm:text-lg px-6 sm:px-10 py-4 sm:py-5 w-full sm:w-auto">
+                  <Play className="w-4 sm:w-5 h-4 sm:h-5 mr-2 sm:mr-3" />
                   View Demo
                 </Button>
               </div>
