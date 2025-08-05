@@ -60,7 +60,7 @@ export const ExerciseUpload = ({ selectedExercise, onVideoUpload }: ExerciseUplo
   };
 
   const handleRecordLive = () => {
-    navigate(`/live-camera?exercise=${encodeURIComponent(selectedExercise.name)}`);
+    navigate(`/live-analysis?exercise=${encodeURIComponent(selectedExercise.name)}`);
   };
 
   const handleStartAnalysis = () => {
@@ -76,7 +76,7 @@ export const ExerciseUpload = ({ selectedExercise, onVideoUpload }: ExerciseUplo
       });
       
       // Navigate to live camera page with video parameter
-      navigate(`/live-camera?exercise=${encodeURIComponent(selectedExercise.name)}&mode=upload`);
+      navigate(`/analysis?exercise=${encodeURIComponent(selectedExercise.name)}&mode=upload`);
     }
   };
 
