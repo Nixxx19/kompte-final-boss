@@ -10,7 +10,7 @@ import PerformanceInsights from "@/components/PerformanceInsights.tsx";
 export default function PushupTracker() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const poseInstance = useRef<mpPose.Pose | null>(null);
+  const poseInstance = useRef<any>(null);
   const rafIdRef = useRef<number | null>(null);
 
   const [uploadedVideoUrl, setUploadedVideoUrl] = useState<string | null>(null);
@@ -100,11 +100,17 @@ export default function PushupTracker() {
     return parseFloat(totalCalories.toFixed(2));
   }
 
+  // Safe constructor resolution: prefer module export, fallback to window global
+  const getPoseCtor = () => {
+    const w = window as any;
+    return (mpPose as any)?.Pose || w.Pose;
+  };
+
   useEffect(() => {
     let stage: "down" | "up" | null = null;
     let timerStarted = false;
 
-    const onResults = (results: mpPose.Results) => {
+    const onResults = (results: any) => {
       const canvas = canvasRef.current;
       const video = videoRef.current;
       if (!canvas || !video) return;
@@ -125,14 +131,16 @@ export default function PushupTracker() {
 
       if (results.poseLandmarks) {
         const lm = results.poseLandmarks;
+
         drawingUtils.drawConnectors(
           ctx,
           lm,
-          mpPose.POSE_CONNECTIONS,
+          (mpPose as any).POSE_CONNECTIONS,
           { color: "#00FF00", lineWidth: 2 }
         );
         drawingUtils.drawLandmarks(ctx, lm, { color: "#FF0000", lineWidth: 1 });
 
+        // KEEPING YOUR ORIGINAL INDICES AS REQUESTED:
         const shoulder = lm[11];
         const elbow = lm[1];
         const wrist = lm[2];
@@ -160,7 +168,7 @@ export default function PushupTracker() {
         }
 
         const score =
-          lm.reduce((sum, l: any) => sum + (l.visibility ?? 0), 0) / lm.length;
+          lm.reduce((sum: number, l: any) => sum + (l.visibility ?? 0), 0) / lm.length;
         poseScoresRef.current.push(score);
 
         if (!isValidPose) {
@@ -187,9 +195,15 @@ export default function PushupTracker() {
     const init = async () => {
       await startWebcam();
 
+      const PoseCtor = getPoseCtor();
+      if (!PoseCtor) {
+        console.error("MediaPipe Pose constructor not found. Ensure scripts and assets are loading.");
+        return;
+      }
+
       // init Pose after webcam is ready, and register onResults before processing loop
-      const pose = new mpPose.Pose({
-        locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`,
+      const pose = new PoseCtor({
+        locateFile: (file: string) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`,
       });
 
       pose.setOptions({
@@ -225,7 +239,7 @@ export default function PushupTracker() {
 
   const processFrameLoop = () => {
     const video = videoRef.current;
-    const pose = poseInstance.current;
+    const pose = poseInstance.current as any;
     if (!video || !pose) return;
 
     const step = async () => {
@@ -235,8 +249,7 @@ export default function PushupTracker() {
       try {
         await pose.send({ image: video });
       } catch (e) {
-        // swallow frame errors to keep loop alive
-        // console.warn("pose.send failed", e);
+        // keep loop alive on frame errors
       }
 
       rafIdRef.current = requestAnimationFrame(step);
@@ -279,7 +292,6 @@ export default function PushupTracker() {
         ? scores.reduce((a, b) => a + b, 0) / scores.length
         : 0;
 
-      // Keep avgScore as 0..1 here; convert to % only for display
       const user = {
         name: "Adi",
         age: 18,
