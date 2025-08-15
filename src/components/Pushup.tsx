@@ -1,244 +1,440 @@
-import React, { useEffect, useRef, useState } from "react";
-import { Pose, POSE_CONNECTIONS } from "@mediapipe/pose";
-import * as drawingUtils from "@mediapipe/drawing_utils";
-import {Link, useSearchParams} from "react-router-dom";
-import {Button} from "@/components/ui/button.tsx";
-import {ArrowLeft, Download, Trophy} from "lucide-react";
-import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card.tsx";
-import PerformanceInsights from "@/components/PerformanceInsights.tsx";
 
-export default function PushupTracker() {
+import React, { useEffect, useRef, useState, useCallback } from "react";
+import { Pose } from "@mediapipe/pose";
+
+import { drawConnectors, drawLandmarks } from "@mediapipe/drawing_utils";
+import { POSE_CONNECTIONS } from "@mediapipe/pose";
+import { Camera } from "@mediapipe/camera_utils";
+import {
+    evaluateStamina,
+    calculateCaloriesDynamic,
+    plotWorkoutSummary,
+} from "./Utils";
+import {Link} from "react-router-dom";
+import {Button} from "@/components/ui/button.tsx";
+import {Activity, ArrowLeft, Download, Trophy, Zap} from "lucide-react";
+import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card.tsx";
+import PerformanceInsights from "@/components/PerformanceInsights.tsx";
+import {ChartContainer, ChartTooltip} from "@/components/ui/chart.tsx";
+import {CartesianGrid, Line, LineChart, ReferenceLine, XAxis, YAxis} from "recharts";
+
+const placeholderUser = {
+    name: "Guest",
+    age: 25,
+    weight: 70, // in kg
+    gender: "male",
+};
+
+
+export default function PushUps({ user, onFinish }) {
+    const activeUser = user ?? placeholderUser;
+
     const videoRef = useRef(null);
     const canvasRef = useRef(null);
-    const poseInstance = useRef(null);
-    const [uploadedVideoUrl, setUploadedVideoUrl] = useState<string | null>(null);
-    const repCountRef = useRef(0);
-    const poseScoresRef = useRef([]);
-    const pauseStartRef = useRef(null);
-    const startTimeRef = useRef(null);
-    const [searchParams] = useSearchParams();
-    const mode = searchParams.get('mode'); // 'upload' or null for live camera
+    const cameraRef = useRef(null);
+    const poseRef = useRef(null);
+    const rafRef = useRef(null);
 
-    const exerciseName = searchParams.get('exercise') || 'Push-ups';
+    // States
+    const [useCamera, setUseCamera] = useState(true);
+    const [file, setFile] = useState(null);
     const [reps, setReps] = useState(0);
-    const [status, setStatus] = useState("Waiting...");
-    const [pauseTime, setPauseTime] = useState(0);
+    const [poseScore, setPoseScore] = useState(0);
+    const [running, setRunning] = useState(false);
     const [summary, setSummary] = useState(null);
+    const [isSessionActive, setIsSessionActive] = useState(false);
+    const [elapsedTime, setElapsedTime] = useState(0);
 
-    const downAngleThreshold = 90;
-    const upAngleThreshold = 160;
+    // Internal refs
+    const startTimeRef = useRef(null);
+    const pauseStartRef = useRef(null);
+    const pauseTimeRef = useRef(0);
+    const poseScoresRef = useRef([]);
+    const repTimestampsRef = useRef([]);
+    const stageRef = useRef(null); // "down" or "up"
 
+    // Thresholds (angles in degrees)
+    const downThreshold = 90;
+    const upThreshold = 160;
+
+    // Calculate angle between 3 points (same as your Python logic)
     const calculateAngle = (a, b, c) => {
-        const radians = Math.atan2(c.y - b.y, c.x - b.x) - Math.atan2(a.y - b.y, a.x - b.x);
-        const angle = Math.abs((radians * 180.0) / Math.PI);
+        const radians =
+            Math.atan2(c[1] - b[1], c[0] - b[0]) -
+            Math.atan2(a[1] - b[1], a[0] - b[0]);
+        let angle = Math.abs((radians * 180) / Math.PI);
         return angle > 180 ? 360 - angle : angle;
     };
 
-    function evaluateStamina(age, weight, reps, duration, avgScore, pauseTime) {
-        let score = 0;
-        duration = duration > 0 ? duration : 1;
-        const repRate = (reps / duration) * 60;
+    // Average visibility score of landmarks
+    const avgVisibility = (landmarks) => {
+        if (!landmarks || landmarks.length === 0) return 0;
+        let sum = 0;
+        landmarks.forEach((l) => (sum += l.visibility ?? 1));
+        return sum / landmarks.length;
+    };
 
-        if (repRate > 30) score += 2;
-        else if (repRate >= 20) score += 1;
+    const onResults = useCallback(
+        (results) => {
+            const video = videoRef.current;
+            const canvas = canvasRef.current;
+            if (!canvas || !video) return;
 
-        if (avgScore > 0.8) score += 2;
-        else if (avgScore >= 0.6) score += 1;
+            const ctx = canvas.getContext("2d");
+            canvas.width = video.videoWidth || 640;
+            canvas.height = video.videoHeight || 480;
 
-        if (pauseTime < 5) score += 2;
-        else if (pauseTime < 10) score += 1;
-
-        if (age < 25) score += 2;
-        else if (age <= 35) score += 1;
-
-        if (score >= 8) return "Elite 💎";
-        else if (score >= 7) return "Excellent 💪";
-        else if (score >= 5) return "Good 🙂";
-        else if (score >= 3) return "Average 😐";
-        else return "Needs Improvement 😓";
-    }
-
-    function calculateCaloriesDynamic(reps, durationSec, weightKg, age, gender, exerciseType = "generic") {
-        const durationMin = durationSec / 60;
-        if (durationMin === 0) return 0.0;
-
-        let bmr;
-        if (gender.toLowerCase() === "male" || gender.toLowerCase() === "m") {
-            bmr = 10 * weightKg + 6.25 * 170 - 5 * age + 5;
-        } else {
-            bmr = 10 * weightKg + 6.25 * 160 - 5 * age - 161;
-        }
-
-        const caloriesPerMin = bmr / 1440;
-        const multiplierMap = {
-            jumping_jacks: 8,
-            high_knees: 8.5,
-            squats: 6.5,
-            pushups: 7.0,
-            generic: 6.0
-        };
-        const multiplier = multiplierMap[exerciseType.toLowerCase()] || 6.0;
-        const totalCalories = caloriesPerMin * durationMin * (multiplier / 1.5);
-
-        return parseFloat(totalCalories.toFixed(2));
-    }
-
-    useEffect(() => {
-        const video = videoRef.current;
-        const canvas = canvasRef.current;
-        const ctx = canvas.getContext("2d");
-        const videoUrl = sessionStorage.getItem('uploadedVideoUrl');
-        if (videoUrl) {
-            setUploadedVideoUrl(videoUrl);
-            processUploadedVideo(videoUrl);
-        }
-
-        poseInstance.current = new Pose({
-            locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`,
-        });
-
-        poseInstance.current.setOptions({
-            modelComplexity: 1,
-            smoothLandmarks: true,
-            minDetectionConfidence: 0.5,
-            minTrackingConfidence: 0.5,
-        });
-
-        let stage = null;
-        let timerStarted = false;
-
-        poseInstance.current.onResults((results) => {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            if (results.image) ctx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
+            ctx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
 
-            if (results.poseLandmarks) {
-                const lm = results.poseLandmarks;
-                drawingUtils.drawConnectors(ctx, lm, POSE_CONNECTIONS, { color: "#00FF00", lineWidth: 2 });
-                drawingUtils.drawLandmarks(ctx, lm, { color: "#FF0000", lineWidth: 1 });
-
-                const shoulder = lm[11];
-                const elbow = lm[13];
-                const wrist = lm[15];
-
-                let isValidPose = false;
-
-                if (shoulder && elbow && wrist) {
-                    if (!timerStarted) {
-                        timerStarted = true;
-                        startTimeRef.current = Date.now();
-                    }
-
-                    const angle = calculateAngle(shoulder, elbow, wrist);
-
-                    if (angle < downAngleThreshold && stage !== "down") {
-                        stage = "down";
-                    }
-                    if (angle > upAngleThreshold && stage === "down") {
-                        stage = "up";
-                        repCountRef.current++;
-                        setReps(repCountRef.current);
-                    }
-
-                    isValidPose = true;  // ✅ pose is valid
+            if (results.poseLandmarks && results.poseLandmarks.length > 0) {
+                if (results.poseLandmarks) {
+                    drawConnectors(ctx, results.poseLandmarks, POSE_CONNECTIONS, {
+                        color: "#00FFAA",
+                        lineWidth: 2,
+                    });
+                    drawLandmarks(ctx, results.poseLandmarks, {
+                        color: "#FF0066",
+                        lineWidth: 1,
+                    });
                 }
 
-                const score = lm.reduce((sum, l) => sum + l.visibility, 0) / lm.length;
-                poseScoresRef.current.push(score);
 
-                // ✅ PAUSE TIME LOGIC
-                if (!isValidPose) {
-                    // user in wrong position or missing key landmarks
-                    if (!pauseStartRef.current) {
-                        pauseStartRef.current = Date.now();
+                const lm = results.poseLandmarks;
+
+                // Pose visibility score
+                const score = avgVisibility(lm);
+                poseScoresRef.current.push(score);
+                setPoseScore(Number(score.toFixed(2)));
+
+                // Pause time tracking
+                if (pauseStartRef.current) {
+                    pauseTimeRef.current += performance.now() / 1000 - pauseStartRef.current;
+                    pauseStartRef.current = null;
+                }
+
+                // Extract relevant landmarks for left arm
+                const leftShoulder = [lm[11].x, lm[11].y];
+                const leftElbow = [lm[13].x, lm[13].y];
+                const leftWrist = [lm[15].x, lm[15].y];
+
+                // Calculate elbow angle
+                const elbowAngle = calculateAngle(leftShoulder, leftElbow, leftWrist);
+
+                const now = performance.now() / 1000;
+
+                // Start timer on first detection of "down" position
+                if (startTimeRef.current === null && elbowAngle < downThreshold + 10) {
+                    startTimeRef.current = now;
+                    setIsSessionActive(true);
+                }
+
+                if (startTimeRef.current !== null) {
+                    // Update elapsed time
+                    setElapsedTime(now - startTimeRef.current);
+
+                    // Rep counting state machine
+                    if (elbowAngle < downThreshold && stageRef.current !== "down") {
+                        stageRef.current = "down";
+                    } else if (elbowAngle > upThreshold && stageRef.current === "down") {
+                        stageRef.current = "up";
+                        setReps((r) => {
+                            repTimestampsRef.current.push(now - startTimeRef.current);
+                            return r + 1;
+                        });
                     }
                 } else {
-                    // user is in correct pose
-                    if (pauseStartRef.current) {
-                        const pauseDuration = (Date.now() - pauseStartRef.current) / 1000;
-                        setPauseTime(prev => prev + pauseDuration);
-                        pauseStartRef.current = null;
-                    }
+                    // If pose detected but timer not started yet, do nothing
                 }
-
-                // ⏱ Update status text
-                const elapsed = (Date.now() - startTimeRef.current) / 1000;
-                setStatus(`Reps: ${repCountRef.current} | Time: ${Math.floor(elapsed)}s`);
+            } else {
+                // No pose detected
+                if (startTimeRef.current !== null && !pauseStartRef.current) {
+                    pauseStartRef.current = performance.now() / 1000;
+                }
             }
-        });
+        },
+        []
+    );
 
+    // Start webcam
+    // const startWebcam = useCallback(async () => {
+    //     if (!videoRef.current || !window.Camera || !poseRef.current) {
+    //         alert("Camera or MediaPipe not available.");
+    //         return;
+    //     }
+    //     cameraRef.current = new window.Camera(videoRef.current, {
+    //         onFrame: async () => await poseRef.current.send({ image: videoRef.current }),
+    //         width: 640,
+    //         height: 480,
+    //     });
+    //     cameraRef.current.start();
+    //     setRunning(true);
+    // }, []);
+    const startWebcam = useCallback(async () => {
+        if (!videoRef.current || !poseRef.current) {
+            alert("Video element or Pose instance not found.");
+            return;
+        }
 
-        return () => {
-            if (video && video.srcObject) {
-                video.srcObject.getTracks().forEach((track) => track.stop());
-            }
-        };
+        try {
+            // Ask for camera permission first
+            await navigator.mediaDevices.getUserMedia({ video: true });
+
+            // Create MediaPipe camera instance
+            cameraRef.current = new Camera(videoRef.current, {
+                onFrame: async () => {
+                    await poseRef.current.send({ image: videoRef.current });
+                },
+                width: 640,
+                height: 480,
+            });
+
+            await cameraRef.current.start();
+            setRunning(true);
+        } catch (error) {
+            console.error("Error starting webcam:", error);
+            alert("Could not start webcam. Please check permissions.");
+        }
     }, []);
 
-    const processFrameLoop = () => {
-        const video = videoRef.current;
-        const pose = poseInstance.current;
-        const step = async () => {
-            await pose.send({ image: video });
-            if (!video.paused && !video.ended) requestAnimationFrame(step);
-        };
-        requestAnimationFrame(step);
+    // Process video file frames
+    const processFileFrame = useCallback(async () => {
+        if (!videoRef.current || !poseRef.current) return;
+        if (videoRef.current.paused || videoRef.current.ended) return;
+        await poseRef.current.send({ image: videoRef.current });
+        rafRef.current = requestAnimationFrame(processFileFrame);
+    }, []);
+
+    // Start processing uploaded file
+    const startFileProcessing = useCallback(
+        (fileObj) => {
+            if (!videoRef.current || !poseRef.current) return;
+            const url = URL.createObjectURL(fileObj);
+            videoRef.current.src = url;
+            videoRef.current.play().then(() => {
+                setRunning(true);
+                rafRef.current = requestAnimationFrame(processFileFrame);
+            });
+        },
+        [processFileFrame]
+    );
+    const chartConfig = {
+        stamina: {
+            label: "Stamina %",
+            color: "hsl(var(--primary))",
+        },
+        avgStamina: {
+            label: "Average Stamina",
+            color: "hsl(var(--accent))",
+        },
     };
-    const processUploadedVideo = (videoUrl) => {
-        // Reset tracking data
+    const staminaOverTimeData = [
+        { time: "0:00", stamina: 100, rally: 1, heartRate: 65, gameTime: "Set 1 - 0:00" },
+        { time: "2:15", stamina: 95, rally: 2, heartRate: 72, gameTime: "Set 1 - 2:15" },
+        { time: "4:30", stamina: 88, rally: 3, heartRate: 78, gameTime: "Set 1 - 4:30" },
+        { time: "7:00", stamina: 92, rally: 4, heartRate: 74, gameTime: "Set 1 - 7:00" },
+        { time: "9:45", stamina: 85, rally: 5, heartRate: 82, gameTime: "Set 1 - 9:45" },
+        { time: "12:30", stamina: 78, rally: 6, heartRate: 88, gameTime: "Set 2 - 0:30" },
+        { time: "15:15", stamina: 82, rally: 7, heartRate: 85, gameTime: "Set 2 - 3:15" },
+        { time: "18:00", stamina: 75, rally: 8, heartRate: 91, gameTime: "Set 2 - 6:00" },
+        { time: "20:45", stamina: 70, rally: 9, heartRate: 95, gameTime: "Set 2 - 8:45" },
+        { time: "23:30", stamina: 68, rally: 10, heartRate: 98, gameTime: "Set 2 - 11:30" },
+        { time: "26:15", stamina: 72, rally: 11, heartRate: 93, gameTime: "Set 3 - 2:15" },
+        { time: "29:00", stamina: 65, rally: 12, heartRate: 102, gameTime: "Set 3 - 5:00" },
+        { time: "31:45", stamina: 60, rally: 13, heartRate: 105, gameTime: "Set 3 - 7:45" },
+        { time: "34:20", stamina: 58, rally: 14, heartRate: 108, gameTime: "Set 3 - 10:20" },
+        { time: "37:10", stamina: 55, rally: 15, heartRate: 110, gameTime: "Set 3 - 13:10" },
+    ];
+    // Stop all activity
+    const stopEverything = useCallback(async () => {
+        if (rafRef.current) {
+            cancelAnimationFrame(rafRef.current);
+            rafRef.current = null;
+        }
+        if (cameraRef.current) {
+            try {
+                cameraRef.current.stop();
+            } catch {}
+            cameraRef.current = null;
+        }
+        if (videoRef.current && !useCamera) {
+            try {
+                videoRef.current.pause();
+            } catch {}
+        }
+        setRunning(false);
+    }, [useCamera]);
+
+    // Start session handler
+    const startSession = useCallback(async () => {
+        if (!activeUser || !activeUser.name) {
+            alert("Please provide user info.");
+            return;
+        }
+
+        // Reset all refs and states
+        startTimeRef.current = null;
+        pauseStartRef.current = null;
+        pauseTimeRef.current = 0;
         poseScoresRef.current = [];
-        setPauseTime(0);
-        repCountRef.current = 0;
+        repTimestampsRef.current = [];
+        stageRef.current = null;
+        setReps(0);
+        setPoseScore(0);
+        setElapsedTime(0);
+        setSummary(null);
+        setIsSessionActive(false);
 
-        const video = videoRef.current;
-        video.src = videoUrl;
+        if (useCamera) {
+            await startWebcam();
+        } else {
+            if (!file) {
+                alert("Please upload a video file.");
+                return;
+            }
+            startFileProcessing(file);
+        }
+    }, [file, useCamera, activeUser, startWebcam, startFileProcessing]);
 
-        video.onloadeddata = () => {
-            video.play();
-            processFrameLoop();
+    // Stop session handler
+    const stopSession = useCallback(async () => {
+        if (pauseStartRef.current) {
+            pauseTimeRef.current += performance.now() / 1000 - pauseStartRef.current;
+            pauseStartRef.current = null;
+        }
+
+        const totalDuration = startTimeRef.current
+            ? Math.round(performance.now() / 1000 - startTimeRef.current)
+            : 0;
+
+        const avgPose =
+            poseScoresRef.current.length > 0
+                ? poseScoresRef.current.reduce((a, b) => a + b, 0) / poseScoresRef.current.length
+                : 0;
+
+        const calories = calculateCaloriesDynamic(
+            reps,
+            totalDuration,
+            activeUser.weight,
+            activeUser.age,
+            activeUser.gender,
+            "pushups"
+        );
+        const stamina = evaluateStamina(
+            activeUser.age,
+            activeUser.weight,
+            reps,
+            totalDuration,
+            avgPose,
+            Math.round(pauseTimeRef.current)
+        );
+
+        const totalTime = Math.max(1, totalDuration);
+        const segmentLength = 5;
+        const numSegments = Math.ceil(totalTime / segmentLength);
+        const counts = new Array(numSegments).fill(0);
+        repTimestampsRef.current.forEach((t) => {
+            const idx = Math.floor(t / segmentLength);
+            if (idx >= 0 && idx < counts.length) counts[idx] += 1;
+        });
+
+        const summaryObj = {
+            activeUser,
+            total_reps: reps,
+            total_duration: totalDuration,
+            avg_pose_score: Number(avgPose.toFixed(3)),
+            pause_time: Math.round(pauseTimeRef.current),
+            reps_over_time: counts,
+            pose_scores: [...poseScoresRef.current],
+            calories,
+            stamina,
         };
 
-        video.onended = () => {
-            const totalTime = startTimeRef.current ? (Date.now() - startTimeRef.current) / 1000 : 0;
-            const scores = poseScoresRef.current;
-            let avgScore = scores.length ? scores.reduce((a, b) => a + b, 0) / scores.length : 0;
-            avgScore *=100
-            const user = {
-                name: "Adi",
-                age: 18,
-                gender: "Male",
-                weight: 65,
-            };
-            const staminaLevel = evaluateStamina(user.age, user.weight, repCountRef.current, totalTime, avgScore, pauseTime);
-            const caloriesBurned = calculateCaloriesDynamic(repCountRef.current, totalTime, user.weight, user.age, user.gender, "jumping_jacks");
+        await stopEverything();
+        setSummary(summaryObj);
+        setIsSessionActive(false);
 
-            const summaryData = {
-                ...user,
-                duration_sec: totalTime.toFixed(1),
-                reps: repCountRef.current,
-                avg_pose_score: avgScore.toFixed(2),
-                pause_time: pauseTime.toFixed(1),
-                stamina: staminaLevel,
-                calories: caloriesBurned.toFixed(2),
-            };
+        if (onFinish) onFinish(summaryObj);
+    }, [reps, activeUser, stopEverything, onFinish]);
 
-            setSummary(summaryData);
+    // Handle file input change
+    const handleFileSelect = useCallback((e) => {
+        const f = e.target.files[0];
+        if (f) {
+            setFile(f);
+            setUseCamera(false);
+            if (videoRef.current) {
+                videoRef.current.src = URL.createObjectURL(f);
+            }
+        }
+    }, []);
+
+    // Reset session
+    const reset = useCallback(async () => {
+        await stopEverything();
+        setFile(null);
+        setUseCamera(true);
+        setSummary(null);
+        setReps(0);
+        setPoseScore(0);
+        setElapsedTime(0);
+        pauseTimeRef.current = 0;
+        poseScoresRef.current = [];
+        repTimestampsRef.current = [];
+        setIsSessionActive(false);
+    }, [stopEverything]);
+
+    // Setup MediaPipe Pose on mount
+    useEffect(() => {
+        if (!poseRef.current) {
+            poseRef.current = new Pose({
+                locateFile: (file) => {
+                    return `${window.location.origin}/node_modules/@mediapipe/pose/${file}`;
+                },
+            });
+
+
+        poseRef.current.setOptions({
+                modelComplexity: 1,
+                smoothLandmarks: true,
+                enableSegmentation: false,
+                minDetectionConfidence: 0.5,
+                minTrackingConfidence: 0.5,
+            });
+            poseRef.current.onResults(onResults);
+        }
+
+        return () => {
+            stopEverything();
         };
-    };
+    }, [onResults, stopEverything]);
 
+    // Plot workout summary when available
+    useEffect(() => {
+        if (!summary) return;
 
-    const startWebcam = async () => {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        videoRef.current.srcObject = stream;
-        videoRef.current.play();
-        processFrameLoop();
-    };
-
-
+        plotWorkoutSummary(
+            {
+                repsChart: "pushup-reps-chart",
+                poseChart: "pushup-pose-chart",
+                activityChart: "pushup-activity-chart",
+                summaryBox: "pushup-summary-text",
+            },
+            summary.activeUser,
+            summary.reps_over_time,
+            summary.pose_scores,
+            summary.total_duration,
+            summary.pause_time,
+            summary.total_reps,
+            summary.calories,
+            summary.stamina
+        );
+    }, [summary]);
 
     return (
         <div className="min-h-screen bg-background overflow-hidden z-[-1]" >
             <div className="relative z-10">
-                {/* Header */}
+
                 <header className="border-b border-border/50 backdrop-blur-xl bg-background/80">
                     <div className="container mx-auto px-4 py-4">
                         <div className="flex items-center justify-between">
@@ -250,141 +446,343 @@ export default function PushupTracker() {
                                     </Button>
                                 </Link>
                                 <div>
-                                    <h1 className="text-2xl font-bold text-foreground">{exerciseName} Analysis</h1>
+                                    <h1 className="text-2xl font-bold text-foreground">PushUps Analysis</h1>
                                     <p className="text-sm text-muted-foreground">Live camera analysis</p>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </header>
-                {/*<p>{status}</p>*/
-                }
-                <div className="mt-4 flex justify-center">
-                    <p className="px-6 py-3 rounded-xl text-base font-medium bg-gradient-to-r from-kompte-purple to-velocity-orange text-white shadow-lg border border-white/10 backdrop-blur-md">
-                        {status}
-                    </p>
+
+                <div style={{ display: "flex", gap: 12, marginBottom: 8 }}>
+                    <div>
+                        <label>
+                            <input
+                                type="radio"
+                                checked={useCamera}
+                                onChange={() => setUseCamera(true)}
+                            />{" "}
+                            Live Camera
+                        </label>
+                        <br />
+                        <label>
+                            <input
+                                type="radio"
+                                checked={!useCamera}
+                                onChange={() => setUseCamera(false)}
+                            />{" "}
+                            Upload Video
+                        </label>
+                    </div>
+
+                    {!useCamera && (
+                        <div>
+                            <input type="file" accept="video/*" onChange={handleFileSelect} />
+                        </div>
+                    )}
+
+                    <div style={{ marginLeft: "auto" }}>
+                        <button onClick={startSession} disabled={running}>
+                            Start
+                        </button>
+                        <button onClick={stopSession} disabled={!running}>
+                            Stop
+                        </button>
+                        <button onClick={reset}>Reset</button>
+                    </div>
                 </div>
+
                 <div>
-                    {/*<button onClick={startWebcam}>📷 Start Webcam</button>*/}
-                    {/*<input type="file" accept="video/*" onChange={handleVideoUpload} style={{ marginLeft: 10 }} />*/}
-                </div>
-                {/*<video ref={videoRef} width={640} height={480} style={{ display: "none" }} playsInline muted />*/}
-                {/*<canvas ref={canvasRef} width={640} height={480} style={{ marginTop: 20, border: "2px solid #444" }} />*/}
-                <div className="flex items-center  justify-center mt-4">
                     <div
                         style={{
+                            width: isSessionActive ? 800 : 1000,
+                            height: 800,
                             position: "relative",
-                            width: "640px",
-                            height: "480px",
+                            overflow: "hidden",
+                            borderRadius: 8,
+                            border: "1px solid #ccc",
+                            flexShrink: 0,
                         }}
                     >
                         <video
                             ref={videoRef}
-                            width={640}
-                            height={480}
+                            style={{ width: "100%", height: "100%", transform: "scaleX(-1)" }}
                             playsInline
                             muted
-                            autoPlay
-                            style={{
-                                borderRadius: "10px",
-                                width: "100%",
-                                height: "100%",
-                                objectFit: "cover",
-                            }}
                         />
                         <canvas
                             ref={canvasRef}
-                            width={640}
-                            height={480}
                             style={{
                                 position: "absolute",
                                 top: 0,
                                 left: 0,
                                 width: "100%",
                                 height: "100%",
-                                pointerEvents: "none",
+                                transform: "scaleX(-1)",
                             }}
                         />
                     </div>
+
+
+                        {/*<div*/}
+                        {/*    style={{ padding: 8, background: "#fff", borderRadius: 8, color: "#000" }}*/}
+                        {/*>*/}
+                        {/*    <div>*/}
+                        {/*        <strong>User:</strong> {activeUser?.name ?? "—"}*/}
+                        {/*    </div>*/}
+                        {/*    <div>*/}
+                        {/*        <strong>Elapsed Time:</strong> {Math.floor(elapsedTime)}s*/}
+                        {/*    </div>*/}
+                        {/*    <div>*/}
+                        {/*        <strong>Reps:</strong> {reps}*/}
+                        {/*    </div>*/}
+                        {/*    <div>*/}
+                        {/*        <strong>Pose Score:</strong> {poseScore}*/}
+                        {/*    </div>*/}
+                        {/*</div>*/}
+
+                        {summary && (
+
+                            <>
+                                <section className="animate-fade-in">
+                                    <Card className="relative overflow-hidden backdrop-blur-xl bg-gradient-to-br from-card/90 via-card/80 to-card/70 border-0 shadow-2xl glow-primary">
+                                        <div className="absolute inset-0 bg-gradient-to-br from-kompte-purple/5 via-transparent to-velocity-orange/5"></div>
+                                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-kompte-purple via-velocity-orange to-accuracy-green"></div>
+
+
+                                        <CardHeader className="relative">
+                                            <div className="flex items-center justify-between">
+                                                <div>
+                                                    <CardTitle className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent mb-2">
+                                                        Session Results
+                                                    </CardTitle>
+                                                    <p className="text-sm text-muted-foreground">
+                                                        Video Analysis
+                                                    </p>
+                                                </div>
+                                                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-primary/30 flex items-center justify-center">
+                                                    <Trophy className="w-6 h-6 text-primary" />
+                                                </div>
+                                            </div>
+                                        </CardHeader>
+                                        <CardContent className="relative">
+                                            <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-8">
+                                                <div className="group text-center p-6 rounded-2xl bg-gradient-to-br from-kompte-purple/10 to-kompte-purple/5 border border-kompte-purple/20 hover:shadow-lg hover:scale-105 transition-all duration-300">
+                                                    <div className="text-xs uppercase tracking-wider text-kompte-purple font-semibold mb-2">Name</div>
+                                                    <div className="text-xl font-bold text-foreground">{summary.activeUser.name}</div>
+                                                </div>
+
+                                                <div className="group text-center p-6 rounded-2xl bg-gradient-to-br from-velocity-orange/10 to-velocity-orange/5 border border-velocity-orange/20 hover:shadow-lg hover:scale-105 transition-all duration-300">
+                                                    <div className="text-xs uppercase tracking-wider text-velocity-orange font-semibold mb-2">Age</div>
+                                                    <div className="text-xl font-bold text-foreground">{summary.activeUser.age}</div>
+                                                </div>
+
+                                                <div className="group text-center p-6 rounded-2xl bg-gradient-to-br from-data-blue/10 to-data-blue/5 border border-data-blue/20 hover:shadow-lg hover:scale-105 transition-all duration-300">
+                                                    <div className="text-xs uppercase tracking-wider text-data-blue font-semibold mb-2">Reps</div>
+                                                    <div className="text-xl font-bold text-foreground">{summary.total_reps}</div>
+                                                </div>
+
+                                                <div className="group text-center p-6 rounded-2xl bg-gradient-to-br from-accuracy-green/10 to-accuracy-green/5 border border-accuracy-green/20 hover:shadow-lg hover:scale-105 transition-all duration-300">
+                                                    <div className="text-xs uppercase tracking-wider text-accuracy-green font-semibold mb-2">Stamina</div>
+                                                    <div className="text-xl font-bold text-foreground">{summary.stamina}</div>
+                                                </div>
+
+                                                <div className="group text-center p-6 rounded-2xl bg-gradient-to-br from-kompte-purple/10 to-kompte-purple/5 border border-kompte-purple/20 hover:shadow-lg hover:scale-105 transition-all duration-300">
+                                                    <div className="text-xs uppercase tracking-wider text-kompte-purple font-semibold mb-2">Calories</div>
+                                                    <div className="text-xl font-bold text-foreground">{summary.calories} kcal</div>
+                                                </div>
+
+                                                <div className="group text-center p-6 rounded-2xl bg-gradient-to-br from-velocity-orange/10 to-velocity-orange/5 border border-velocity-orange/20 hover:shadow-lg hover:scale-105 transition-all duration-300">
+                                                    <div className="text-xs uppercase tracking-wider text-velocity-orange font-semibold mb-2">Form</div>
+                                                    <div className="text-xl font-bold text-foreground">{summary.avg_pose_score}%</div>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex justify-center">
+                                                <Button className="gap-2 bg-gradient-to-r from-kompte-purple to-velocity-orange hover:from-kompte-purple/90 hover:to-velocity-orange/90 text-white border-0 px-8 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
+                                                    <Download className="w-5 h-5" />
+                                                    Download Premium Report
+                                                </Button>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                </section>
+                                <section>
+                                    <PerformanceInsights />
+                                </section>
+                                <div
+                                    style={{ marginTop: 12, background: "#fff", padding: 8, borderRadius: 8 }}
+                                >
+                                    <h4>Charts</h4>
+                                    <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+                                        <div style={{ flex: "1 1 300px", height: 180 }}>
+                                            <canvas id="pushup-reps-chart" style={{ width: "100%", height: "100%" }} />
+                                        </div>
+                                        <div style={{ flex: "1 1 300px", height: 180 }}>
+                                            <canvas id="pushup-pose-chart" style={{ width: "100%", height: "100%" }} />
+                                        </div>
+                                        <div style={{ flex: "1 1 300px", height: 180 }}>
+                                            <canvas
+                                                id="pushup-activity-chart"
+                                                style={{ width: "100%", height: "100%" }}
+                                            />
+                                        </div>
+                                        <pre
+                                            id="pushup-summary-text"
+                                            style={{
+                                                flex: "1 1 300px",
+                                                whiteSpace: "pre-wrap",
+                                                background: "#eee",
+                                                padding: 12,
+                                                borderRadius: 8,
+                                                fontSize: 14,
+                                                height: 180,
+                                                overflowY: "auto",
+                                            }}
+                                        />
+                                    </div>
+                                    <Card className="group relative overflow-hidden hover:shadow-2xl transition-all duration-700 border-0 bg-gradient-to-br from-card via-card/95 to-card/80 backdrop-blur-xl">
+                                        <div className="absolute inset-0 bg-gradient-to-br from-primary/3 to-transparent"></div>
+                                        <CardHeader className="relative">
+                                            <div className="flex items-center justify-between">
+                                                <div>
+                                                    <CardTitle className="flex items-center gap-3 text-2xl font-bold bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent">
+                                                        <div className="w-16 h-14 rounded-xl bg-gradient-to-br from-primary/20 to-primary/30 flex items-center justify-center">
+                                                            <Zap className="w-12 h-10 text-primary" />
+                                                        </div>
+                                                        Rally Stamina Timeline
+                                                    </CardTitle>
+                                                    <CardDescription className="mt-3 text-md font-semibold">
+                                                        Real-time stamina tracking with precise rally timing and game context
+                                                    </CardDescription>
+                                                </div>
+                                                <Button variant="outline" size="sm" className="hover:bg-primary/10 hover:border-primary/30 transition-all duration-300">
+                                                    <Activity className="w-4 h-4 mr-0" />
+                                                    Export Analysis
+                                                </Button>
+                                            </div>
+                                        </CardHeader>
+                                        <CardContent className="relative">
+                                            <ChartContainer config={chartConfig} className="h-[400px] w-full">
+                                                <LineChart data={staminaOverTimeData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                                                    <defs>
+                                                        <linearGradient id="staminaGradient" x1="0" y1="0" x2="0" y2="1">
+                                                            <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
+                                                            <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0.05}/>
+                                                        </linearGradient>
+                                                    </defs>
+                                                    <CartesianGrid strokeDasharray="3 3" className="opacity-20" stroke="hsl(var(--border))" />
+                                                    <XAxis
+                                                        dataKey="time"
+                                                        axisLine={false}
+                                                        tickLine={false}
+                                                        className="text-xs"
+                                                        tick={{ fill: 'hsl(var(--muted-foreground))' }}
+                                                    />
+                                                    <YAxis
+                                                        domain={[45, 105]}
+                                                        axisLine={false}
+                                                        tickLine={false}
+                                                        className="text-xs"
+                                                        tick={{ fill: 'hsl(var(--muted-foreground))' }}
+                                                        tickFormatter={(value) => `${value}%`}
+                                                    />
+                                                    <ChartTooltip
+                                                        content={({ active, payload, label }) => {
+                                                            if (active && payload && payload.length) {
+                                                                const data = payload[0].payload;
+                                                                return (
+                                                                    <div className="glass-card p-4 rounded-xl shadow-2xl border border-primary/20">
+                                                                        <div className="space-y-2">
+                                                                            <div className="flex items-center gap-2">
+                                                                                <div className="w-3 h-3 rounded-full bg-primary"></div>
+                                                                                <span className="font-bold text-foreground">Rally {data.rally}</span>
+                                                                            </div>
+                                                                            <div className="grid grid-cols-2 gap-3 text-sm">
+                                                                                <div>
+                                                                                    <p className="text-muted-foreground">Match Time</p>
+                                                                                    <p className="font-semibold text-primary">{data.gameTime}</p>
+                                                                                </div>
+                                                                                <div>
+                                                                                    <p className="text-muted-foreground">Stamina Level</p>
+                                                                                    <p className="font-bold text-primary text-lg">{data.stamina}%</p>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div className="pt-2 border-t border-border/30">
+                                                                                <p className="text-xs text-muted-foreground">Heart Rate: <span className="text-foreground font-medium">{data.heartRate} bpm</span></p>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                );
+                                                            }
+                                                            return null;
+                                                        }}
+                                                    />
+                                                    <Line
+                                                        type="monotone"
+                                                        dataKey="stamina"
+                                                        stroke="hsl(var(--primary))"
+                                                        strokeWidth={4}
+                                                        fill="url(#staminaGradient)"
+                                                        dot={{
+                                                            fill: "hsl(var(--primary))",
+                                                            strokeWidth: 3,
+                                                            r: 5,
+                                                            stroke: "hsl(var(--background))"
+                                                        }}
+                                                        activeDot={{
+                                                            r: 8,
+                                                            stroke: "hsl(var(--primary))",
+                                                            strokeWidth: 3,
+                                                            fill: "hsl(var(--background))",
+                                                            className: "drop-shadow-lg"
+                                                        }}
+                                                    />
+                                                    <ReferenceLine
+                                                        y={75}
+                                                        stroke="hsl(var(--destructive))"
+                                                        strokeDasharray="8 4"
+                                                        opacity={0.8}
+                                                        strokeWidth={2}
+                                                        label={{ value: "Critical Zone", offset: 10, fill: "hsl(var(--destructive))" }}
+                                                    />
+                                                    <ReferenceLine
+                                                        y={90}
+                                                        stroke="hsl(var(--accent))"
+                                                        strokeDasharray="8 4"
+                                                        opacity={0.6}
+                                                        strokeWidth={2}
+                                                        label={{ value: "Optimal Zone", offset: 10, fill: "hsl(var(--accent))" }}
+                                                    />
+                                                </LineChart>
+                                            </ChartContainer>
+                                            <div className="mt-6 p-5 bg-gradient-to-r from-muted/30 via-muted/20 to-muted/30 rounded-xl border border-border/30">
+                                                <div className="grid grid-cols-3 gap-4 text-center">
+                                                    <div className="space-y-1">
+                                                        <div className="text-xs text-muted-foreground uppercase tracking-wide font-semibold">Current Stamina</div>
+                                                        <div className="text-2xl font-bold text-primary">55%</div>
+                                                    </div>
+                                                    <div className="space-y-1">
+                                                        <div className="text-xs text-muted-foreground uppercase tracking-wide font-semibold">Match Duration</div>
+                                                        <div className="text-2xl font-bold text-primary">37:10</div>
+                                                    </div>
+                                                    <div className="space-y-1">
+                                                        <div className="text-xs text-muted-foreground uppercase tracking-wide font-semibold">Peak Stamina</div>
+                                                        <div className="text-2xl font-bold text-accent">100%</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                </div>
+
+                            </>
+
+
+                        )}
+
                 </div>
-                {summary && (
-
-                    <>
-                        <section className="animate-fade-in">
-                            <Card className="relative overflow-hidden backdrop-blur-xl bg-gradient-to-br from-card/90 via-card/80 to-card/70 border-0 shadow-2xl glow-primary">
-                                <div className="absolute inset-0 bg-gradient-to-br from-kompte-purple/5 via-transparent to-velocity-orange/5"></div>
-                                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-kompte-purple via-velocity-orange to-accuracy-green"></div>
-
-                                <CardHeader className="relative">
-                                    <div className="flex items-center justify-between">
-                                        <div>
-                                            <CardTitle className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent mb-2">
-                                                Session Results
-                                            </CardTitle>
-                                            <p className="text-sm text-muted-foreground">
-                                                {mode === 'upload' ? 'Video Analysis Complete' : 'Live Analysis Complete'}
-                                            </p>
-                                        </div>
-                                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-primary/30 flex items-center justify-center">
-                                            <Trophy className="w-6 h-6 text-primary" />
-                                        </div>
-                                    </div>
-                                </CardHeader>
-
-                                <CardContent className="relative">
-                                    <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-8">
-                                        <div className="group text-center p-6 rounded-2xl bg-gradient-to-br from-kompte-purple/10 to-kompte-purple/5 border border-kompte-purple/20 hover:shadow-lg hover:scale-105 transition-all duration-300">
-                                            <div className="text-xs uppercase tracking-wider text-kompte-purple font-semibold mb-2">Name</div>
-                                            <div className="text-xl font-bold text-foreground">{summary.name}</div>
-                                        </div>
-
-                                        <div className="group text-center p-6 rounded-2xl bg-gradient-to-br from-velocity-orange/10 to-velocity-orange/5 border border-velocity-orange/20 hover:shadow-lg hover:scale-105 transition-all duration-300">
-                                            <div className="text-xs uppercase tracking-wider text-velocity-orange font-semibold mb-2">Age</div>
-                                            <div className="text-xl font-bold text-foreground">{summary.age}</div>
-                                        </div>
-
-                                        <div className="group text-center p-6 rounded-2xl bg-gradient-to-br from-data-blue/10 to-data-blue/5 border border-data-blue/20 hover:shadow-lg hover:scale-105 transition-all duration-300">
-                                            <div className="text-xs uppercase tracking-wider text-data-blue font-semibold mb-2">Reps</div>
-                                            <div className="text-xl font-bold text-foreground">{summary.reps}</div>
-                                        </div>
-
-                                        <div className="group text-center p-6 rounded-2xl bg-gradient-to-br from-accuracy-green/10 to-accuracy-green/5 border border-accuracy-green/20 hover:shadow-lg hover:scale-105 transition-all duration-300">
-                                            <div className="text-xs uppercase tracking-wider text-accuracy-green font-semibold mb-2">Pause Time</div>
-                                            <div className="text-xl font-bold text-foreground">{summary.pause_time}</div>
-                                        </div>
-
-                                        <div className="group text-center p-6 rounded-2xl bg-gradient-to-br from-kompte-purple/10 to-kompte-purple/5 border border-kompte-purple/20 hover:shadow-lg hover:scale-105 transition-all duration-300">
-                                            <div className="text-xs uppercase tracking-wider text-kompte-purple font-semibold mb-2">Calories</div>
-                                            <div className="text-xl font-bold text-foreground">{summary.calories} kcal</div>
-                                        </div>
-
-                                        <div className="group text-center p-6 rounded-2xl bg-gradient-to-br from-velocity-orange/10 to-velocity-orange/5 border border-velocity-orange/20 hover:shadow-lg hover:scale-105 transition-all duration-300">
-                                            <div className="text-xs uppercase tracking-wider text-velocity-orange font-semibold mb-2">Form</div>
-                                            <div className="text-xl font-bold text-foreground">{summary.avg_pose_score}%</div>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex justify-center">
-                                        <Button className="gap-2 bg-gradient-to-r from-kompte-purple to-velocity-orange hover:from-kompte-purple/90 hover:to-velocity-orange/90 text-white border-0 px-8 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
-                                            <Download className="w-5 h-5" />
-                                            Download Premium Report
-                                        </Button>
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        </section>
-                        <section>
-                            <PerformanceInsights />
-                        </section>
-                    </>
-
-                )}
-                <div className="fixed inset-0 bg-gradient-to-br from-background via-background to-primary/5 z-[-1]" />
-                <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/20 via-transparent z-[-1] to-transparent" />
-                <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-accent/10 via-transparent z-[-1] to-transparent" />
-
             </div>
-
         </div>
     );
 }

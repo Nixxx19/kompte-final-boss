@@ -15,6 +15,8 @@ import exerciseComponentMap from './components/ExerciseRouter';
 import PushupLive from "@/components/PushupLive.tsx";
 import exerciseLiveComponentMap from "@/components/LiveExerciseRouter.tsx";
 import HighKneesApp from "@/components/HighKnees.tsx";
+import SquatsTracker from "@/components/SquatsTracker.tsx";
+import HighKnees from "@/components/HighKnees.tsx";
 
 const GenericAnalysis = () => {
   const [searchParams] = useSearchParams();
@@ -50,7 +52,7 @@ const App = () => (
           <Route path="/exercise" element={<Exercise />} />
           <Route path="/live-camera" element={<LiveCamera />} />
           {/*<Route path={"/analysis"} element={<JumpingJacks/>} />*/}
-          <Route path={"/test"} element={<HighKneesApp />} />
+          <Route path={"/test"} element={<HighKnees/>} />
           <Route path="/analysis" element={<GenericAnalysis />} />
           <Route path="/live-analysis" element={<GenericAnalysisLive />} />
 

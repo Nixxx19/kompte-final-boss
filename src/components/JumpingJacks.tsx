@@ -353,79 +353,79 @@ const JumpingJacks = () => {
                     <>
                         <section className="animate-fade-in">
                             <Card className="relative overflow-hidden backdrop-blur-xl bg-gradient-to-br from-card/90 via-card/80 to-card/70 border-0 shadow-2xl glow-primary">
-                                <div className="absolute inset-0 bg-gradient-to-br from-kompte-purple/5 via-transparent to-velocity-orange/5"></div>
-                                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-kompte-purple via-velocity-orange to-accuracy-green"></div>
+                            <div className="absolute inset-0 bg-gradient-to-br from-kompte-purple/5 via-transparent to-velocity-orange/5"></div>
+                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-kompte-purple via-velocity-orange to-accuracy-green"></div>
 
-                                {/*<CardHeader className="relative">*/}
-                                {/*    <div className="flex items-center justify-between">*/}
-                                {/*        <div>*/}
-                                {/*            <CardTitle className="text-2xl font-bold bg-gradient-to-r from-foreground to-kompte-purple bg-clip-text text-transparent mb-2">*/}
-                                {/*                Session Results*/}
-                                {/*            </CardTitle>*/}
+                            {/*<CardHeader className="relative">*/}
+                            {/*    <div className="flex items-center justify-between">*/}
+                            {/*        <div>*/}
+                            {/*            <CardTitle className="text-2xl font-bold bg-gradient-to-r from-foreground to-kompte-purple bg-clip-text text-transparent mb-2">*/}
+                            {/*                Session Results*/}
+                            {/*            </CardTitle>*/}
 
-                                {/*        </div>*/}
-                                {/*        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-kompte-purple/20 to-kompte-purple/30 flex items-center justify-center">*/}
-                                {/*            <Trophy className="w-6 h-6 text-kompte-purple" />*/}
-                                {/*        </div>*/}
-                                {/*    </div>*/}
-                                {/*</CardHeader>*/}
-                                <CardHeader className="relative">
-                                    <div className="flex items-center justify-between">
-                                        <div>
-                                            <CardTitle className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent mb-2">
-                                                Session Results
-                                            </CardTitle>
-                                            <p className="text-sm text-muted-foreground">
-                                                {mode === 'upload' ? 'Video Analysis Complete' : 'Live Analysis Complete'}
-                                            </p>
-                                        </div>
-                                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-primary/30 flex items-center justify-center">
-                                            <Trophy className="w-6 h-6 text-primary" />
-                                        </div>
+                            {/*        </div>*/}
+                            {/*        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-kompte-purple/20 to-kompte-purple/30 flex items-center justify-center">*/}
+                            {/*            <Trophy className="w-6 h-6 text-kompte-purple" />*/}
+                            {/*        </div>*/}
+                            {/*    </div>*/}
+                            {/*</CardHeader>*/}
+                            <CardHeader className="relative">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <CardTitle className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent mb-2">
+                                            Session Results
+                                        </CardTitle>
+                                        <p className="text-sm text-muted-foreground">
+                                            {mode === 'upload' ? 'Video Analysis Complete' : 'Live Analysis Complete'}
+                                        </p>
                                     </div>
-                                </CardHeader>
-                                <CardContent className="relative">
-                                    <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-8">
-                                        <div className="group text-center p-6 rounded-2xl bg-gradient-to-br from-kompte-purple/10 to-kompte-purple/5 border border-kompte-purple/20 hover:shadow-lg hover:scale-105 transition-all duration-300">
-                                            <div className="text-xs uppercase tracking-wider text-kompte-purple font-semibold mb-2">Name</div>
-                                            <div className="text-xl font-bold text-foreground">{summary.name}</div>
-                                        </div>
-
-                                        <div className="group text-center p-6 rounded-2xl bg-gradient-to-br from-velocity-orange/10 to-velocity-orange/5 border border-velocity-orange/20 hover:shadow-lg hover:scale-105 transition-all duration-300">
-                                            <div className="text-xs uppercase tracking-wider text-velocity-orange font-semibold mb-2">Age</div>
-                                            <div className="text-xl font-bold text-foreground">{summary.age}</div>
-                                        </div>
-
-                                        <div className="group text-center p-6 rounded-2xl bg-gradient-to-br from-data-blue/10 to-data-blue/5 border border-data-blue/20 hover:shadow-lg hover:scale-105 transition-all duration-300">
-                                            <div className="text-xs uppercase tracking-wider text-data-blue font-semibold mb-2">Reps</div>
-                                            <div className="text-xl font-bold text-foreground">{summary.reps}</div>
-                                        </div>
-
-                                        <div className="group text-center p-6 rounded-2xl bg-gradient-to-br from-accuracy-green/10 to-accuracy-green/5 border border-accuracy-green/20 hover:shadow-lg hover:scale-105 transition-all duration-300">
-                                            <div className="text-xs uppercase tracking-wider text-accuracy-green font-semibold mb-2">Stamina</div>
-                                            <div className="text-xl font-bold text-foreground">{summary.stamina}</div>
-                                        </div>
-
-                                        <div className="group text-center p-6 rounded-2xl bg-gradient-to-br from-kompte-purple/10 to-kompte-purple/5 border border-kompte-purple/20 hover:shadow-lg hover:scale-105 transition-all duration-300">
-                                            <div className="text-xs uppercase tracking-wider text-kompte-purple font-semibold mb-2">Calories</div>
-                                            <div className="text-xl font-bold text-foreground">{summary.calories} kcal</div>
-                                        </div>
-
-                                        <div className="group text-center p-6 rounded-2xl bg-gradient-to-br from-velocity-orange/10 to-velocity-orange/5 border border-velocity-orange/20 hover:shadow-lg hover:scale-105 transition-all duration-300">
-                                            <div className="text-xs uppercase tracking-wider text-velocity-orange font-semibold mb-2">Form</div>
-                                            <div className="text-xl font-bold text-foreground">{summary.avg_pose_score}%</div>
-                                        </div>
+                                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-primary/30 flex items-center justify-center">
+                                        <Trophy className="w-6 h-6 text-primary" />
+                                    </div>
+                                </div>
+                            </CardHeader>
+                            <CardContent className="relative">
+                                <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-8">
+                                    <div className="group text-center p-6 rounded-2xl bg-gradient-to-br from-kompte-purple/10 to-kompte-purple/5 border border-kompte-purple/20 hover:shadow-lg hover:scale-105 transition-all duration-300">
+                                        <div className="text-xs uppercase tracking-wider text-kompte-purple font-semibold mb-2">Name</div>
+                                        <div className="text-xl font-bold text-foreground">{summary.name}</div>
                                     </div>
 
-                                    <div className="flex justify-center">
-                                        <Button className="gap-2 bg-gradient-to-r from-kompte-purple to-velocity-orange hover:from-kompte-purple/90 hover:to-velocity-orange/90 text-white border-0 px-8 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
-                                            <Download className="w-5 h-5" />
-                                            Download Premium Report
-                                        </Button>
+                                    <div className="group text-center p-6 rounded-2xl bg-gradient-to-br from-velocity-orange/10 to-velocity-orange/5 border border-velocity-orange/20 hover:shadow-lg hover:scale-105 transition-all duration-300">
+                                        <div className="text-xs uppercase tracking-wider text-velocity-orange font-semibold mb-2">Age</div>
+                                        <div className="text-xl font-bold text-foreground">{summary.age}</div>
                                     </div>
-                                </CardContent>
-                            </Card>
-                        </section>
+
+                                    <div className="group text-center p-6 rounded-2xl bg-gradient-to-br from-data-blue/10 to-data-blue/5 border border-data-blue/20 hover:shadow-lg hover:scale-105 transition-all duration-300">
+                                        <div className="text-xs uppercase tracking-wider text-data-blue font-semibold mb-2">Reps</div>
+                                        <div className="text-xl font-bold text-foreground">{summary.reps}</div>
+                                    </div>
+
+                                    <div className="group text-center p-6 rounded-2xl bg-gradient-to-br from-accuracy-green/10 to-accuracy-green/5 border border-accuracy-green/20 hover:shadow-lg hover:scale-105 transition-all duration-300">
+                                        <div className="text-xs uppercase tracking-wider text-accuracy-green font-semibold mb-2">Stamina</div>
+                                        <div className="text-xl font-bold text-foreground">{summary.stamina}</div>
+                                    </div>
+
+                                    <div className="group text-center p-6 rounded-2xl bg-gradient-to-br from-kompte-purple/10 to-kompte-purple/5 border border-kompte-purple/20 hover:shadow-lg hover:scale-105 transition-all duration-300">
+                                        <div className="text-xs uppercase tracking-wider text-kompte-purple font-semibold mb-2">Calories</div>
+                                        <div className="text-xl font-bold text-foreground">{summary.calories} kcal</div>
+                                    </div>
+
+                                    <div className="group text-center p-6 rounded-2xl bg-gradient-to-br from-velocity-orange/10 to-velocity-orange/5 border border-velocity-orange/20 hover:shadow-lg hover:scale-105 transition-all duration-300">
+                                        <div className="text-xs uppercase tracking-wider text-velocity-orange font-semibold mb-2">Form</div>
+                                        <div className="text-xl font-bold text-foreground">{summary.avg_pose_score}%</div>
+                                    </div>
+                                </div>
+
+                                <div className="flex justify-center">
+                                    <Button className="gap-2 bg-gradient-to-r from-kompte-purple to-velocity-orange hover:from-kompte-purple/90 hover:to-velocity-orange/90 text-white border-0 px-8 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
+                                        <Download className="w-5 h-5" />
+                                        Download Premium Report
+                                    </Button>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </section>
                         <section>
                             <PerformanceInsights />
                         </section>
