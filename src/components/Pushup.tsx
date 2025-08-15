@@ -307,11 +307,11 @@ export default function PushUps({ user, onFinish }) {
             ? Math.round(performance.now() / 1000 - startTimeRef.current)
             : 0;
 
-        const avgPose =
+        let avgPose =
             poseScoresRef.current.length > 0
-                ? poseScoresRef.current.reduce((a, b) => a + b, 0) / poseScoresRef.current.length
+                ? (poseScoresRef.current.reduce((a, b) => a + b, 0) / poseScoresRef.current.length)
                 : 0;
-
+        avgPose *= 100;
         const calories = calculateCaloriesDynamic(
             reps,
             totalDuration,
@@ -338,11 +338,11 @@ export default function PushUps({ user, onFinish }) {
             if (idx >= 0 && idx < counts.length) counts[idx] += 1;
         });
 
-        const summaryObj = {
+        let summaryObj = {
             activeUser,
             total_reps: reps,
             total_duration: totalDuration,
-            avg_pose_score: Number(avgPose.toFixed(3)),
+            avg_pose_score: Number(avgPose.toFixed(2)),
             pause_time: Math.round(pauseTimeRef.current),
             reps_over_time: counts,
             pose_scores: [...poseScoresRef.current],
@@ -584,7 +584,7 @@ export default function PushUps({ user, onFinish }) {
 
                                                 <div className="group text-center p-6 rounded-2xl bg-gradient-to-br from-accuracy-green/10 to-accuracy-green/5 border border-accuracy-green/20 hover:shadow-lg hover:scale-105 transition-all duration-300">
                                                     <div className="text-xs uppercase tracking-wider text-accuracy-green font-semibold mb-2">Stamina</div>
-                                                    <div className="text-xl font-bold text-foreground">{summary.stamina}</div>
+                                                    <div className="text-xl font-bold text-foreground">{summary.activeUser.height}</div>
                                                 </div>
 
                                                 <div className="group text-center p-6 rounded-2xl bg-gradient-to-br from-kompte-purple/10 to-kompte-purple/5 border border-kompte-purple/20 hover:shadow-lg hover:scale-105 transition-all duration-300">
@@ -608,172 +608,29 @@ export default function PushUps({ user, onFinish }) {
                                     </Card>
                                 </section>
                                 <section>
-                                    <PerformanceInsights />
+                                    <PerformanceInsights stamina={summary.stamina} cal={summary.calories} form={summary.avg_pose_score} recov={Math.floor(elapsedTime)}/>
                                 </section>
                                 <div
-                                    style={{ marginTop: 12, background: "#fff", padding: 8, borderRadius: 8 }}
+                                    style={{ marginTop: 12, background: "#fff", padding: 20, borderRadius: 8 }}
                                 >
                                     <h4>Charts</h4>
-                                    <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-                                        <div style={{ flex: "1 1 300px", height: 180 }}>
+                                    {/*<div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>*/}
+                                    <div className="grid grid-cols-2 gap-x-8 gap-y-4 px-[15rem]">
+                                        <div style={{ flex: "1 1 600px", height: 360 }}>
                                             <canvas id="pushup-reps-chart" style={{ width: "100%", height: "100%" }} />
                                         </div>
-                                        <div style={{ flex: "1 1 300px", height: 180 }}>
+                                        <div style={{ flex: "1 1 600px", height: 360 }}>
                                             <canvas id="pushup-pose-chart" style={{ width: "100%", height: "100%" }} />
                                         </div>
-                                        <div style={{ flex: "1 1 300px", height: 180 }}>
+                                        <div style={{ flex: "1 1 600", height: 360 }}>
                                             <canvas
                                                 id="pushup-activity-chart"
                                                 style={{ width: "100%", height: "100%" }}
                                             />
                                         </div>
-                                        <pre
-                                            id="pushup-summary-text"
-                                            style={{
-                                                flex: "1 1 300px",
-                                                whiteSpace: "pre-wrap",
-                                                background: "#eee",
-                                                padding: 12,
-                                                borderRadius: 8,
-                                                fontSize: 14,
-                                                height: 180,
-                                                overflowY: "auto",
-                                            }}
-                                        />
+
                                     </div>
-                                    <Card className="group relative overflow-hidden hover:shadow-2xl transition-all duration-700 border-0 bg-gradient-to-br from-card via-card/95 to-card/80 backdrop-blur-xl">
-                                        <div className="absolute inset-0 bg-gradient-to-br from-primary/3 to-transparent"></div>
-                                        <CardHeader className="relative">
-                                            <div className="flex items-center justify-between">
-                                                <div>
-                                                    <CardTitle className="flex items-center gap-3 text-2xl font-bold bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent">
-                                                        <div className="w-16 h-14 rounded-xl bg-gradient-to-br from-primary/20 to-primary/30 flex items-center justify-center">
-                                                            <Zap className="w-12 h-10 text-primary" />
-                                                        </div>
-                                                        Rally Stamina Timeline
-                                                    </CardTitle>
-                                                    <CardDescription className="mt-3 text-md font-semibold">
-                                                        Real-time stamina tracking with precise rally timing and game context
-                                                    </CardDescription>
-                                                </div>
-                                                <Button variant="outline" size="sm" className="hover:bg-primary/10 hover:border-primary/30 transition-all duration-300">
-                                                    <Activity className="w-4 h-4 mr-0" />
-                                                    Export Analysis
-                                                </Button>
-                                            </div>
-                                        </CardHeader>
-                                        <CardContent className="relative">
-                                            <ChartContainer config={chartConfig} className="h-[400px] w-full">
-                                                <LineChart data={staminaOverTimeData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                                                    <defs>
-                                                        <linearGradient id="staminaGradient" x1="0" y1="0" x2="0" y2="1">
-                                                            <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
-                                                            <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0.05}/>
-                                                        </linearGradient>
-                                                    </defs>
-                                                    <CartesianGrid strokeDasharray="3 3" className="opacity-20" stroke="hsl(var(--border))" />
-                                                    <XAxis
-                                                        dataKey="time"
-                                                        axisLine={false}
-                                                        tickLine={false}
-                                                        className="text-xs"
-                                                        tick={{ fill: 'hsl(var(--muted-foreground))' }}
-                                                    />
-                                                    <YAxis
-                                                        domain={[45, 105]}
-                                                        axisLine={false}
-                                                        tickLine={false}
-                                                        className="text-xs"
-                                                        tick={{ fill: 'hsl(var(--muted-foreground))' }}
-                                                        tickFormatter={(value) => `${value}%`}
-                                                    />
-                                                    <ChartTooltip
-                                                        content={({ active, payload, label }) => {
-                                                            if (active && payload && payload.length) {
-                                                                const data = payload[0].payload;
-                                                                return (
-                                                                    <div className="glass-card p-4 rounded-xl shadow-2xl border border-primary/20">
-                                                                        <div className="space-y-2">
-                                                                            <div className="flex items-center gap-2">
-                                                                                <div className="w-3 h-3 rounded-full bg-primary"></div>
-                                                                                <span className="font-bold text-foreground">Rally {data.rally}</span>
-                                                                            </div>
-                                                                            <div className="grid grid-cols-2 gap-3 text-sm">
-                                                                                <div>
-                                                                                    <p className="text-muted-foreground">Match Time</p>
-                                                                                    <p className="font-semibold text-primary">{data.gameTime}</p>
-                                                                                </div>
-                                                                                <div>
-                                                                                    <p className="text-muted-foreground">Stamina Level</p>
-                                                                                    <p className="font-bold text-primary text-lg">{data.stamina}%</p>
-                                                                                </div>
-                                                                            </div>
-                                                                            <div className="pt-2 border-t border-border/30">
-                                                                                <p className="text-xs text-muted-foreground">Heart Rate: <span className="text-foreground font-medium">{data.heartRate} bpm</span></p>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                );
-                                                            }
-                                                            return null;
-                                                        }}
-                                                    />
-                                                    <Line
-                                                        type="monotone"
-                                                        dataKey="stamina"
-                                                        stroke="hsl(var(--primary))"
-                                                        strokeWidth={4}
-                                                        fill="url(#staminaGradient)"
-                                                        dot={{
-                                                            fill: "hsl(var(--primary))",
-                                                            strokeWidth: 3,
-                                                            r: 5,
-                                                            stroke: "hsl(var(--background))"
-                                                        }}
-                                                        activeDot={{
-                                                            r: 8,
-                                                            stroke: "hsl(var(--primary))",
-                                                            strokeWidth: 3,
-                                                            fill: "hsl(var(--background))",
-                                                            className: "drop-shadow-lg"
-                                                        }}
-                                                    />
-                                                    <ReferenceLine
-                                                        y={75}
-                                                        stroke="hsl(var(--destructive))"
-                                                        strokeDasharray="8 4"
-                                                        opacity={0.8}
-                                                        strokeWidth={2}
-                                                        label={{ value: "Critical Zone", offset: 10, fill: "hsl(var(--destructive))" }}
-                                                    />
-                                                    <ReferenceLine
-                                                        y={90}
-                                                        stroke="hsl(var(--accent))"
-                                                        strokeDasharray="8 4"
-                                                        opacity={0.6}
-                                                        strokeWidth={2}
-                                                        label={{ value: "Optimal Zone", offset: 10, fill: "hsl(var(--accent))" }}
-                                                    />
-                                                </LineChart>
-                                            </ChartContainer>
-                                            <div className="mt-6 p-5 bg-gradient-to-r from-muted/30 via-muted/20 to-muted/30 rounded-xl border border-border/30">
-                                                <div className="grid grid-cols-3 gap-4 text-center">
-                                                    <div className="space-y-1">
-                                                        <div className="text-xs text-muted-foreground uppercase tracking-wide font-semibold">Current Stamina</div>
-                                                        <div className="text-2xl font-bold text-primary">55%</div>
-                                                    </div>
-                                                    <div className="space-y-1">
-                                                        <div className="text-xs text-muted-foreground uppercase tracking-wide font-semibold">Match Duration</div>
-                                                        <div className="text-2xl font-bold text-primary">37:10</div>
-                                                    </div>
-                                                    <div className="space-y-1">
-                                                        <div className="text-xs text-muted-foreground uppercase tracking-wide font-semibold">Peak Stamina</div>
-                                                        <div className="text-2xl font-bold text-accent">100%</div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
+
                                 </div>
 
                             </>

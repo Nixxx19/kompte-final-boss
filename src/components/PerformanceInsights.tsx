@@ -10,6 +10,14 @@ import {
 } from "@/components/ui/chart";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, ReferenceLine, BarChart, Bar } from "recharts";
 
+interface Props {
+  stamina: string;
+  cal: string;
+  form: string;
+  recov:string
+
+}
+
 // Enhanced stamina data with more detailed tracking
 const staminaOverTimeData = [
   { time: "0:00", stamina: 100, rally: 1, heartRate: 65, gameTime: "Set 1 - 0:00" },
@@ -50,7 +58,7 @@ const chartConfig = {
   },
 };
 
-const PerformanceInsights = () => {
+const PerformanceInsights = ({stamina, cal, form, recov}: Props) => {
   const currentStamina = 82;
   const weeklyImprovement = 8.5;
 
@@ -83,10 +91,10 @@ const PerformanceInsights = () => {
               </div>
             </CardHeader>
             <CardContent className="relative">
-              <div className="text-5xl font-bold text-foreground mb-2 tracking-tight">{currentStamina}%</div>
+              <div className="text-4xl mt-2 font-bold text-foreground mb-2 tra4king-tight">{stamina}</div>
               <div className="flex items-center text-sm">
-                <TrendingUp className="w-6 h-8 text-green-500 mr-2" />
-                <span className="text-green-500 font-medium">{weeklyImprovement}% this week</span>
+                {/*<TrendingUp className="w-6 h-8 text-green-500 mr-2" />*/}
+                {/*<span className="text-green-500 font-medium">{weeklyImprovement}% this week</span>*/}
               </div>
             </CardContent>
           </Card>
@@ -95,17 +103,17 @@ const PerformanceInsights = () => {
           <Card className="group relative overflow-hidden hover:shadow-2xl transition-all duration-500 hover:scale-105 border-0 bg-gradient-to-br from-card via-card/95 to-card/80 backdrop-blur-xl">
             <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent"></div>
             <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-2xl font-medium font-semibold text-muted-foreground">Peak<br/>Performance</CardTitle>
+              <CardTitle className="text-2xl font-medium font-semibold text-muted-foreground">Calories<br/>Burnt</CardTitle>
               <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-accent/20 to-accent/30 flex items-center justify-center group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
                 <Trophy className="w-10 h-11 text-accent" />
               </div>
             </CardHeader>
             <CardContent className="relative">
-              <div className="text-5xl font-bold text-foreground mb-2 tracking-tight">98%</div>
-              <div className="flex items-center text-sm">
-                <Target className="w-6 h-8 text-accent mr-2" />
-                <span className="text-muted-foreground font-medium">Saturday peak</span>
-              </div>
+              <div className="text-4xl mt-2 font-bold text-foreground mb-2 tracking-tight">{cal} Kcal</div>
+              {/*<div className="flex items-center text-sm">*/}
+              {/*  <Target className="w-6 h-8 text-accent mr-2" />*/}
+              {/*  <span className="text-muted-foreground font-medium">Saturday peak</span>*/}
+              {/*</div>*/}
             </CardContent>
           </Card>
 
@@ -113,17 +121,17 @@ const PerformanceInsights = () => {
           <Card className="group relative overflow-hidden hover:shadow-2xl transition-all duration-500 hover:scale-105 border-0 bg-gradient-to-br from-card via-card/95 to-card/80 backdrop-blur-xl">
             <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent"></div>
             <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-2xl font-medium font-semibold text-muted-foreground">Best<br/>Duration</CardTitle>
+              <CardTitle className="text-3xl font-medium font-semibold text-muted-foreground">Duration</CardTitle>
               <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/30 flex items-center justify-center group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
                 <Clock className="w-10 h-11 text-primary" />
               </div>
             </CardHeader>
             <CardContent className="relative">
-              <div className="text-5xl font-bold text-foreground mb-2 tracking-tight">37:10</div>
-              <div className="flex items-center text-sm">
-                <Activity className="w-6 h-8 text-primary mr-2" />
-                <span className="text-muted-foreground font-medium">Session length</span>
-              </div>
+              <div className="text-5xl font-bold text-foreground mb-2 tracking-tight">{recov}s</div>
+              {/*<div className="flex items-center text-sm">*/}
+              {/*  <Activity className="w-6 h-8 text-primary mr-2" />*/}
+              {/*  <span className="text-muted-foreground font-medium">Session length</span>*/}
+              {/*</div>*/}
             </CardContent>
           </Card>
 
@@ -131,17 +139,17 @@ const PerformanceInsights = () => {
           <Card className="group relative overflow-hidden hover:shadow-2xl transition-all duration-500 hover:scale-105 border-0 bg-gradient-to-br from-card via-card/95 to-card/80 backdrop-blur-xl">
             <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-transparent"></div>
             <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-2xl font-medium font-semibold text-muted-foreground">Recovery<br/>Rate</CardTitle>
+              <CardTitle className="text-2xl font-medium font-semibold text-muted-foreground">Form<br/>Score</CardTitle>
               <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-green-500/20 to-green-500/30 flex items-center justify-center group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
                 <TrendingUp className="w-10 h-11 text-green-500" />
               </div>
             </CardHeader>
             <CardContent className="relative">
-              <div className="text-5xl font-bold text-foreground mb-3 tracking-tight">Elite</div>
+              <div className="text-4xl font-bold text-foreground mb-3 tracking-tight mt-2">{form}%</div>
               <div className="flex items-center text-sm">
-                <Badge variant="secondary" className="text-green-500 bg-green-500/15 border-green-500/30">
-                  Top 5%
-                </Badge>
+                {/*<Badge variant="secondary" className="text-green-500 bg-green-500/15 border-green-500/30">*/}
+                {/*  Top 5%*/}
+                {/*</Badge>*/}
               </div>
             </CardContent>
           </Card>
