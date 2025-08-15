@@ -32,7 +32,7 @@ const exercises: ExerciseType[] = [
   {
     id: 'jumping-jacks',
     name: 'Jumping Jacks',
-    icon: <Activity className="w-6 h-6" />,
+    icon: <Activity className="w-8 h-8" />,
     description: 'Full body cardio exercise for endurance',
     difficulty: 'Easy',
     duration: '30 sec',
@@ -42,7 +42,7 @@ const exercises: ExerciseType[] = [
   {
     id: 'high-knees',
     name: 'High Knees',
-    icon: <Zap className="w-6 h-6" />,
+    icon: <Zap className="w-8 h-8" />,
     description: 'Cardio and leg strength builder',
     difficulty: 'Medium',
     duration: '30 sec',
@@ -52,20 +52,20 @@ const exercises: ExerciseType[] = [
   {
     id: 'push-ups',
     name: 'Push Ups',
-    icon: <Dumbbell className="w-6 h-6" />,
+    icon: <Dumbbell className="w-8 h-8" />,
     description: 'Upper body strength training',
     difficulty: 'Medium',
-    duration: '10-15 reps',
+    duration: '30 sec',
     calories: '5-8',
-    color: 'red'
+    color: 'orange'
   },
   {
     id: 'squats',
     name: 'Squats',
-    icon: <Target className="w-6 h-6" />,
+    icon: <Target className="w-8 h-8" />,
     description: 'Lower body strength and stability',
     difficulty: 'Easy',
-    duration: '15-20 reps',
+    duration: '30 sec',
     calories: '6-10',
     color: 'green'
   }
@@ -87,10 +87,10 @@ export const ExerciseSelector = ({ onExerciseSelect, selectedExercise }: Exercis
       <div className="relative z-10 p-6">
         <div className="flex items-center gap-3 mb-6">
           <div className="p-2 rounded-lg bg-accent/20 group-hover:bg-accent/30 transition-all duration-300 group-hover:scale-110">
-            <BarChart3 className="w-5 h-5 text-accent" />
+            <BarChart3 className="w-8 h-8 text-accent" />
           </div>
           <div>
-            <h3 className="text-xl font-semibold text-foreground group-hover:text-accent transition-colors duration-300">
+            <h3 className="text-2xl font-semibold text-foreground group-hover:text-accent transition-colors duration-300">
               Choose Exercise
             </h3>
             <p className="text-sm text-muted-foreground">Select your workout type</p>
@@ -100,23 +100,23 @@ export const ExerciseSelector = ({ onExerciseSelect, selectedExercise }: Exercis
           </div>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {exercises.map((exercise, index) => (
             <div
               key={exercise.id}
-              className={`relative group/item cursor-pointer transition-all duration-500 animate-scale-in ${
-                selectedExercise?.id === exercise.id 
-                  ? 'ring-2 ring-primary shadow-lg shadow-primary/20 scale-105' 
+              className={`relative group/item cursor-pointer transition-all duration-500 animate-scale-in w-65 h-55 ${
+                selectedExercise?.id === exercise.id
+                  ? 'ring-2 ring-primary shadow-lg shadow-primary/20 scale-105'
                   : 'hover:ring-1 hover:ring-accent/50 hover:scale-105'
               }`}
-              style={{animationDelay: `${index * 0.1}s`}}
+              style={{ animationDelay: `${index * 0.1}s` }}
               onClick={() => onExerciseSelect(exercise)}
             >
               <Card className="h-full glass-card border-border/50 p-4 hover:bg-secondary/40 transition-all duration-500 group-hover/item:shadow-xl">
                 <div className="absolute inset-0 bg-gradient-to-br from-transparent to-primary/5 rounded-lg opacity-0 group-hover/item:opacity-100 transition-opacity duration-500" />
                 <div className="relative z-10">
                   <div className="flex items-start gap-4">
-                    <div className={`p-3 rounded-xl bg-${exercise.color}-500/20 text-${exercise.color}-400 group-hover/item:bg-${exercise.color}-500/30 transition-all duration-300 group-hover/item:scale-110`}>
+                    <div className={`p-4 rounded-xl bg-${exercise.color}-500/20 text-${exercise.color}-400 group-hover/item:bg-${exercise.color}-500/30 transition-all duration-300 group-hover/item:scale-110`}>
                       {exercise.icon}
                     </div>
                     
