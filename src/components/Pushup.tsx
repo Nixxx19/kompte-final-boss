@@ -23,6 +23,7 @@ const placeholderUser = {
     age: 25,
     weight: 70, // in kg
     gender: "male",
+    height: "175cm"
 };
 
 
@@ -583,18 +584,18 @@ export default function PushUps({ user, onFinish }) {
                                                 </div>
 
                                                 <div className="group text-center p-6 rounded-2xl bg-gradient-to-br from-accuracy-green/10 to-accuracy-green/5 border border-accuracy-green/20 hover:shadow-lg hover:scale-105 transition-all duration-300">
-                                                    <div className="text-xs uppercase tracking-wider text-accuracy-green font-semibold mb-2">Stamina</div>
+                                                    <div className="text-xs uppercase tracking-wider text-accuracy-green font-semibold mb-2">Height</div>
                                                     <div className="text-xl font-bold text-foreground">{summary.activeUser.height}</div>
                                                 </div>
 
                                                 <div className="group text-center p-6 rounded-2xl bg-gradient-to-br from-kompte-purple/10 to-kompte-purple/5 border border-kompte-purple/20 hover:shadow-lg hover:scale-105 transition-all duration-300">
-                                                    <div className="text-xs uppercase tracking-wider text-kompte-purple font-semibold mb-2">Calories</div>
-                                                    <div className="text-xl font-bold text-foreground">{summary.calories} kcal</div>
+                                                    <div className="text-xs uppercase tracking-wider text-kompte-purple font-semibold mb-2">Weight</div>
+                                                    <div className="text-xl font-bold text-foreground">{summary.activeUser.weight} kg</div>
                                                 </div>
 
                                                 <div className="group text-center p-6 rounded-2xl bg-gradient-to-br from-velocity-orange/10 to-velocity-orange/5 border border-velocity-orange/20 hover:shadow-lg hover:scale-105 transition-all duration-300">
-                                                    <div className="text-xs uppercase tracking-wider text-velocity-orange font-semibold mb-2">Form</div>
-                                                    <div className="text-xl font-bold text-foreground">{summary.avg_pose_score}%</div>
+                                                    <div className="text-xs uppercase tracking-wider text-velocity-orange font-semibold mb-2">Gender</div>
+                                                    <div className="text-xl font-bold text-foreground">{summary.activeUser.gender}</div>
                                                 </div>
                                             </div>
 
