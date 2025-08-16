@@ -455,7 +455,7 @@ export default function PushUps({ user, onFinish }) {
                     </div>
                 </header>
 
-                <div style={{ display: "flex", gap: 12, marginBottom: 8 }}>
+                <div className={"flex justify-center items-center mt-6"}>
                     <div>
                         <label>
                             <input
@@ -493,11 +493,11 @@ export default function PushUps({ user, onFinish }) {
                     </div>
                 </div>
 
-                <div>
+                <div className={"flex justify-center flex-col items-center"}>
                     <div
                         style={{
-                            width: isSessionActive ? 800 : 1000,
-                            height: 800,
+                            width: 800,
+                            height: 600,
                             position: "relative",
                             overflow: "hidden",
                             borderRadius: 8,
@@ -523,25 +523,6 @@ export default function PushUps({ user, onFinish }) {
                             }}
                         />
                     </div>
-
-
-                        {/*<div*/}
-                        {/*    style={{ padding: 8, background: "#fff", borderRadius: 8, color: "#000" }}*/}
-                        {/*>*/}
-                        {/*    <div>*/}
-                        {/*        <strong>User:</strong> {activeUser?.name ?? "—"}*/}
-                        {/*    </div>*/}
-                        {/*    <div>*/}
-                        {/*        <strong>Elapsed Time:</strong> {Math.floor(elapsedTime)}s*/}
-                        {/*    </div>*/}
-                        {/*    <div>*/}
-                        {/*        <strong>Reps:</strong> {reps}*/}
-                        {/*    </div>*/}
-                        {/*    <div>*/}
-                        {/*        <strong>Pose Score:</strong> {poseScore}*/}
-                        {/*    </div>*/}
-                        {/*</div>*/}
-
                         {summary && (
 
                             <>
@@ -609,7 +590,7 @@ export default function PushUps({ user, onFinish }) {
                                     </Card>
                                 </section>
                                 <section>
-                                    <PerformanceInsights stamina={summary.stamina} cal={summary.calories} form={summary.avg_pose_score} recov={Math.floor(elapsedTime)}/>
+                                    <PerformanceInsights stamina={summary.stamina} cal={summary.calories} form={summary.avg_pose_score} recov={Math.floor(elapsedTime).toString()}/>
                                 </section>
                                 <div
                                     style={{ marginTop: 12, background: "#fff", padding: 20, borderRadius: 8 }}

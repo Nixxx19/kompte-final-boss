@@ -10,7 +10,7 @@ const exerciseComponentMap = {
     'Jumping Jacks': JumpingJacks,
     'Push Ups': PushUps,
     'Squats': SquatsTracker,
-    'HighKnees': HighKnees
+    'High Knees': HighKnees
     // Add more as needed
 };
 

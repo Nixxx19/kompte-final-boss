@@ -20,6 +20,7 @@ const placeholderUser = {
     age: 25,
     weight: 70, // in kg
     gender: "male",
+    height: "175cm"
 };
 
 export default function Squats({ user, onFinish }) {
@@ -30,6 +31,7 @@ export default function Squats({ user, onFinish }) {
     const cameraRef = useRef(null);
     const poseRef = useRef(null);
     const rafRef = useRef(null);
+    const [elapsedTime, setElapsedTime] = useState(0);
 
     // States
     const [useCamera, setUseCamera] = useState(true);
@@ -72,11 +74,12 @@ export default function Squats({ user, onFinish }) {
             if (!canvas || !video) return;
 
             const ctx = canvas.getContext("2d");
-            canvas.width = video.videoWidth || 640;
-            canvas.height = video.videoHeight || 480;
+            canvas.width = video.videoWidth || 800;
+            canvas.height = video.videoHeight || 600;
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
+            const now = performance.now() / 1000;
 
             if (results.poseLandmarks && results.poseLandmarks.length > 0) {
                 // if (
@@ -108,6 +111,7 @@ export default function Squats({ user, onFinish }) {
 
                 const lm = results.poseLandmarks;
 
+
                 // Calculate pose visibility score
                 const score = avgVisibility(lm);
                 poseScoresRef.current.push(score);
@@ -126,7 +130,6 @@ export default function Squats({ user, onFinish }) {
 
                 const squatAngle = Math.min(rAngle, lAngle);
 
-                const now = performance.now() / 1000;
                 const downThreshold = 115;
                 const upThreshold = 160;
 
@@ -153,6 +156,8 @@ export default function Squats({ user, onFinish }) {
                 // No pose detected
                 if (startTimeRef.current !== null && !pauseStartRef.current) {
                     pauseStartRef.current = performance.now() / 1000;
+                    setElapsedTime(now - startTimeRef.current);
+
                 }
             }
         },
@@ -175,8 +180,8 @@ export default function Squats({ user, onFinish }) {
                 onFrame: async () => {
                     await poseRef.current.send({ image: videoRef.current });
                 },
-                width: 640,
-                height: 480,
+                width: 800,
+                height: 600,
             });
 
             await cameraRef.current.start();
@@ -244,6 +249,7 @@ export default function Squats({ user, onFinish }) {
         setPoseScore(0);
         setSummary(null);
         setIsSessionActive(true);
+        setElapsedTime(0)
 
         if (useCamera) {
             await startWebcam();
@@ -302,7 +308,7 @@ export default function Squats({ user, onFinish }) {
             activeUser,
             total_reps: reps,
             total_duration: totalDuration,
-            avg_pose_score: Number(avgPose.toFixed(3)),
+            avg_pose_score: Number(avgPose.toFixed(3))*100,
             pause_time: Math.round(pauseTimeRef.current),
             reps_over_time: counts,
             pose_scores: [...poseScoresRef.current],
@@ -341,6 +347,7 @@ export default function Squats({ user, onFinish }) {
         setReps(0);
         setPoseScore(0);
         setIsSessionActive(false);
+        setElapsedTime(0)
     }, [stopEverything]);
 
     // Setup MediaPipe Pose on mount
@@ -431,7 +438,7 @@ export default function Squats({ user, onFinish }) {
                                     </Button>
                                 </Link>
                                 <div>
-                                    <h1 className="text-2xl font-bold text-foreground">PushUps Analysis</h1>
+                                    <h1 className="text-2xl font-bold text-foreground">Squats Analysis</h1>
                                     <p className="text-sm text-muted-foreground">Live camera analysis</p>
                                 </div>
                             </div>
@@ -477,11 +484,11 @@ export default function Squats({ user, onFinish }) {
                     </div>
                 </div>
 
-                <div>
+                <div className={"flex justify-center items-center mt-6"}>
                     <div
                         style={{
-                            width: isSessionActive ? 800 : 1000,
-                            height: 800,
+                            width: 800,
+                            height: 600,
                             position: "relative",
                             overflow: "hidden",
                             borderRadius: 8,
@@ -568,18 +575,22 @@ export default function Squats({ user, onFinish }) {
                                             </div>
 
                                             <div className="group text-center p-6 rounded-2xl bg-gradient-to-br from-accuracy-green/10 to-accuracy-green/5 border border-accuracy-green/20 hover:shadow-lg hover:scale-105 transition-all duration-300">
-                                                <div className="text-xs uppercase tracking-wider text-accuracy-green font-semibold mb-2">Stamina</div>
-                                                <div className="text-xl font-bold text-foreground">{summary.stamina}</div>
+                                                <div className="text-xs uppercase tracking-wider text-accuracy-green font-semibold mb-2">Height</div>
+                                                <div className="text-xl font-bold text-foreground">{summary.activeUser.height}</div>
                                             </div>
 
+
+
+
+
                                             <div className="group text-center p-6 rounded-2xl bg-gradient-to-br from-kompte-purple/10 to-kompte-purple/5 border border-kompte-purple/20 hover:shadow-lg hover:scale-105 transition-all duration-300">
-                                                <div className="text-xs uppercase tracking-wider text-kompte-purple font-semibold mb-2">Calories</div>
-                                                <div className="text-xl font-bold text-foreground">{summary.calories} kcal</div>
+                                                <div className="text-xs uppercase tracking-wider text-kompte-purple font-semibold mb-2">Weight</div>
+                                                <div className="text-xl font-bold text-foreground">{summary.activeUser.weight} kg</div>
                                             </div>
 
                                             <div className="group text-center p-6 rounded-2xl bg-gradient-to-br from-velocity-orange/10 to-velocity-orange/5 border border-velocity-orange/20 hover:shadow-lg hover:scale-105 transition-all duration-300">
-                                                <div className="text-xs uppercase tracking-wider text-velocity-orange font-semibold mb-2">Form</div>
-                                                <div className="text-xl font-bold text-foreground">{summary.avg_pose_score}%</div>
+                                                <div className="text-xs uppercase tracking-wider text-velocity-orange font-semibold mb-2">Gender</div>
+                                                <div className="text-xl font-bold text-foreground">{summary.activeUser.gender}</div>
                                             </div>
                                         </div>
 
@@ -593,21 +604,21 @@ export default function Squats({ user, onFinish }) {
                                 </Card>
                             </section>
                             <section>
-                                <PerformanceInsights />
+                                <PerformanceInsights stamina={summary.stamina} cal={summary.calories} form={summary.avg_pose_score} recov={summary.total_duration}/>
                             </section>
                             <div
-                                style={{ marginTop: 12, background: "#fff", padding: 8, borderRadius: 8 }}
+                                style={{ marginTop: 12, background: "#fff", padding: 8, borderRadius: 8 }} className={"grid-cols-2"}
                             >
                                 <div style={{ marginTop: 12, background: "#fff", padding: 8, borderRadius: 8 }}>
                                     <h4>Charts</h4>
-                                    <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-                                        <div style={{ flex: "1 1 300px", height: 180 }}>
+                                    <div className="grid grid-cols-2 gap-x-8 gap-y-4 px-[15rem]">
+                                        <div style={{ flex: "1 1 600px", height: 360 }}>
                                             <canvas id="sq-reps-chart" style={{ width: "100%", height: "100%" }} />
                                         </div>
-                                        <div style={{ flex: "1 1 300px", height: 180 }}>
+                                        <div style={{ flex: "1 1 600px", height: 360 }}>
                                             <canvas id="sq-pose-chart" style={{ width: "100%", height: "100%" }} />
                                         </div>
-                                        <div style={{ flex: "1 1 300px", height: 180 }}>
+                                        <div style={{ flex: "1 1 600px", height: 360 }}>
                                             <canvas id="sq-activity-chart" style={{ width: "100%", height: "100%" }} />
                                         </div>
 

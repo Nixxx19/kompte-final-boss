@@ -7,6 +7,11 @@ import {
 import {drawConnectors, drawLandmarks} from "@mediapipe/drawing_utils";
 import {Pose, POSE_CONNECTIONS} from "@mediapipe/pose";
 import {Camera} from "@mediapipe/camera_utils";
+import {Link} from "react-router-dom";
+import {Button} from "@/components/ui/button.tsx";
+import {ArrowLeft, Download, Trophy} from "lucide-react";
+import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card.tsx";
+import PerformanceInsights from "@/components/PerformanceInsights.tsx";
 
 
 const placeholderUser = {
@@ -14,6 +19,7 @@ const placeholderUser = {
     age: 25,
     weight: 70, // in kg
     gender: "male",
+    height: "175cm"
 };
 export default function HighKnees({ user, onFinish }) {
     const activeUser = user ?? placeholderUser;
@@ -277,7 +283,7 @@ export default function HighKnees({ user, onFinish }) {
             activeUser,
             total_reps: reps,
             total_duration: totalDuration,
-            avg_pose_score: Number(avgPose.toFixed(3)),
+            avg_pose_score: Number(avgPose.toFixed(2))*100,
             pause_time: Math.round(pauseTimeRef.current),
             reps_over_time: counts,
             pose_scores: [...poseScoresRef.current],
@@ -360,188 +366,215 @@ export default function HighKnees({ user, onFinish }) {
     }, [summary]);
 
     return (
-        <div style={{ padding: 12 }}>
-            <h2>High Knees</h2>
+        <div className="min-h-screen bg-background overflow-hidden z-[-1]" >
+            <div className="relative z-10">
 
-            <div style={{ display: "flex", gap: 12, marginBottom: 8 }}>
-                <div>
-                    <label>
-                        <input
-                            type="radio"
-                            checked={useCamera}
-                            onChange={() => setUseCamera(true)}
-                        />{" "}
-                        Live Camera
-                    </label>
-                    <br />
-                    <label>
-                        <input
-                            type="radio"
-                            checked={!useCamera}
-                            onChange={() => setUseCamera(false)}
-                        />{" "}
-                        Upload Video
-                    </label>
-                </div>
-
-                {!useCamera && (
-                    <div>
-                        <input type="file" accept="video/*" onChange={handleFileSelect} />
-                    </div>
-                )}
-
-                <div style={{ marginLeft: "auto" }}>
-                    <button onClick={startSession} disabled={running}>
-                        Start
-                    </button>
-                    <button onClick={stopSession} disabled={!running}>
-                        Stop
-                    </button>
-                    <button onClick={reset}>Reset</button>
-                </div>
-            </div>
-
-            <div style={{ display: "flex", gap: 12 }}>
-                <div
-                    style={{
-                        width: isSessionActive ? 800 : 1000,
-                        height: 800,
-                        position: "relative",
-                        overflow: "hidden",
-                        borderRadius: 8,
-                        border: "1px solid #ccc",
-                        flexShrink: 0,
-                    }}
-                >
-                    <video
-                        ref={videoRef}
-                        style={{ width: "100%", height: "100%", transform: "scaleX(-1)" }}
-                        playsInline
-                        muted
-                    />
-                    <canvas
-                        ref={canvasRef}
-                        style={{
-                            position: "absolute",
-                            top: 0,
-                            left: 0,
-                            width: "100%",
-                            height: "100%",
-                            transform: "scaleX(-1)",
-                        }}
-                    />
-                </div>
-
-                <div style={{ width: 340 }}>
-                    <div
-                        style={{ padding: 8, background: "#fff", borderRadius: 8, color: "#000" }}
-                    >
-                        <div>
-                            <strong>User:</strong> {activeUser?.name ?? "—"}
-                        </div>
-                        <div>
-                            <strong>Duration:</strong>{" "}
-                            {summary
-                                ? `${summary.total_duration}s`
-                                : startTimeRef.current
-                                    ? Math.round(performance.now() / 1000 - startTimeRef.current) + "s"
-                                    : "0s"}
-                        </div>
-                        <div>
-                            <strong>Reps:</strong> {reps}
-                        </div>
-                        <div>
-                            <strong>Pose score:</strong> {poseScore}
-                        </div>
-                    </div>
-
-                    {summary && (
-                        <div
-                            id="hk-summary-container"
-                            style={{
-                                marginTop: 12,
-                                background: "#fff",
-                                padding: 8,
-                                borderRadius: 8,
-                                color: "#000",
-                            }}
-                        >
-                            <h4>Session Summary</h4>
-                            <div>
-                                <strong>Name:</strong> {summary.activeUser.name}
-                            </div>
-                            <div>
-                                <strong>Age:</strong> {summary.activeUser.age}
-                            </div>
-                            <div>
-                                <strong>Reps:</strong> {summary.total_reps}
-                            </div>
-                            <div>
-                                <strong>Gender:</strong> {summary.activeUser.gender}
-                            </div>
-                            <div>
-                                <strong>Duration:</strong> {summary.total_duration}s
-                            </div>
-                            <div>
-                                <strong>Avg Pose Score:</strong> {summary.avg_pose_score}
-                            </div>
-                            <div>
-                                <strong>Pause time:</strong> {summary.pause_time}s
-                            </div>
-                            <div>
-                                <strong>Calories:</strong> {summary.calories} kcal
-                            </div>
-                            <div>
-                                <strong>Stamina:</strong> {summary.stamina}
-                            </div>
-
-                            <div
-                                style={{
-                                    marginTop: 12,
-                                    background: "#fff",
-                                    padding: 8,
-                                    borderRadius: 8,
-                                }}
-                            >
-                                <h4>Charts</h4>
-                                <div
-                                    style={{ display: "flex", gap: 12, flexWrap: "wrap" }}
-                                >
-                                    <div style={{ flex: "1 1 300px", height: 180 }}>
-                                        <canvas
-                                            id="hk-reps-chart"
-                                            style={{ width: "100%", height: "100%" }}
-                                        />
-                                    </div>
-                                    <div style={{ flex: "1 1 300px", height: 180 }}>
-                                        <canvas
-                                            id="hk-pose-chart"
-                                            style={{ width: "100%", height: "100%" }}
-                                        />
-                                    </div>
-                                    <div style={{ flex: "1 1 300px", height: 180 }}>
-                                        <canvas
-                                            id="hk-activity-chart"
-                                            style={{ width: "100%", height: "100%" }}
-                                        />
-                                    </div>
-                                    <pre
-                                        id="hk-summary-text"
-                                        style={{
-                                            flex: "1 1 300px",
-                                            whiteSpace: "pre-wrap",
-                                            background: "#eee",
-                                            padding: 12,
-                                            borderRadius: 8,
-                                            fontSize: 14,
-                                            height: 180,
-                                            overflowY: "auto",
-                                        }}
-                                    />
+                <header className="border-b border-border/50 backdrop-blur-xl bg-background/80">
+                    <div className="container mx-auto px-4 py-4">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-4">
+                                <Link to="/exercise">
+                                    <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
+                                        <ArrowLeft className="w-4 h-4 mr-2" />
+                                        Back to Exercise
+                                    </Button>
+                                </Link>
+                                <div>
+                                    <h1 className="text-2xl font-bold text-foreground">High Knees Analysis</h1>
+                                    <p className="text-sm text-muted-foreground">Live camera analysis</p>
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </header>
+
+                <div style={{ display: "flex", gap: 12, marginBottom: 8 }}>
+                    <div>
+                        <label>
+                            <input
+                                type="radio"
+                                checked={useCamera}
+                                onChange={() => setUseCamera(true)}
+                            />{" "}
+                            Live Camera
+                        </label>
+                        <br />
+                        <label>
+                            <input
+                                type="radio"
+                                checked={!useCamera}
+                                onChange={() => setUseCamera(false)}
+                            />{" "}
+                            Upload Video
+                        </label>
+                    </div>
+
+                    {!useCamera && (
+                        <div>
+                            <input type="file" accept="video/*" onChange={handleFileSelect} />
+                        </div>
                     )}
+
+                    <div style={{ marginLeft: "auto" }}>
+                        <button onClick={startSession} disabled={running}>
+                            Start
+                        </button>
+                        <button onClick={stopSession} disabled={!running}>
+                            Stop
+                        </button>
+                        <button onClick={reset}>Reset</button>
+                    </div>
+                </div>
+
+                <div >
+                    <div className={"flex justify-center items-center mt-6"}
+                        style={{
+                            width: 800,
+                            height: 600,
+                            position: "relative",
+                            overflow: "hidden",
+                            borderRadius: 8,
+                            border: "1px solid #ccc",
+                            flexShrink: 0,
+                        }}
+                    >
+                        <video
+                            ref={videoRef}
+                            style={{ width: "100%", height: "100%", transform: "scaleX(-1)" }}
+                            playsInline
+                            muted
+                        />
+                        <canvas
+                            ref={canvasRef}
+                            style={{
+                                position: "absolute",
+                                top: 0,
+                                left: 0,
+                                width: "100%",
+                                height: "100%",
+                                transform: "scaleX(-1)",
+                            }}
+                        />
+                    </div>
+
+
+                    {/*<div*/}
+                    {/*    style={{ padding: 8, background: "#fff", borderRadius: 8, color: "#000" }}*/}
+                    {/*>*/}
+                    {/*    <div>*/}
+                    {/*        <strong>User:</strong> {activeUser?.name ?? "—"}*/}
+                    {/*    </div>*/}
+                    {/*    <div>*/}
+                    {/*        <strong>Elapsed Time:</strong> {Math.floor(elapsedTime)}s*/}
+                    {/*    </div>*/}
+                    {/*    <div>*/}
+                    {/*        <strong>Reps:</strong> {reps}*/}
+                    {/*    </div>*/}
+                    {/*    <div>*/}
+                    {/*        <strong>Pose Score:</strong> {poseScore}*/}
+                    {/*    </div>*/}
+                    {/*</div>*/}
+
+                    {summary && (
+
+                        <>
+                            <section className="animate-fade-in">
+                                <Card className="relative overflow-hidden backdrop-blur-xl bg-gradient-to-br from-card/90 via-card/80 to-card/70 border-0 shadow-2xl glow-primary">
+                                    <div className="absolute inset-0 bg-gradient-to-br from-kompte-purple/5 via-transparent to-velocity-orange/5"></div>
+                                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-kompte-purple via-velocity-orange to-accuracy-green"></div>
+
+
+                                    <CardHeader className="relative">
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <CardTitle className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent mb-2">
+                                                    Session Results
+                                                </CardTitle>
+                                                <p className="text-sm text-muted-foreground">
+                                                    Video Analysis
+                                                </p>
+                                            </div>
+                                            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-primary/30 flex items-center justify-center">
+                                                <Trophy className="w-6 h-6 text-primary" />
+                                            </div>
+                                        </div>
+                                    </CardHeader>
+                                    <CardContent className="relative">
+                                        <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-8">
+                                            <div className="group text-center p-6 rounded-2xl bg-gradient-to-br from-kompte-purple/10 to-kompte-purple/5 border border-kompte-purple/20 hover:shadow-lg hover:scale-105 transition-all duration-300">
+                                                <div className="text-xs uppercase tracking-wider text-kompte-purple font-semibold mb-2">Name</div>
+                                                <div className="text-xl font-bold text-foreground">{summary.activeUser.name}</div>
+                                            </div>
+
+                                            <div className="group text-center p-6 rounded-2xl bg-gradient-to-br from-velocity-orange/10 to-velocity-orange/5 border border-velocity-orange/20 hover:shadow-lg hover:scale-105 transition-all duration-300">
+                                                <div className="text-xs uppercase tracking-wider text-velocity-orange font-semibold mb-2">Age</div>
+                                                <div className="text-xl font-bold text-foreground">{summary.activeUser.age}</div>
+                                            </div>
+
+                                            <div className="group text-center p-6 rounded-2xl bg-gradient-to-br from-data-blue/10 to-data-blue/5 border border-data-blue/20 hover:shadow-lg hover:scale-105 transition-all duration-300">
+                                                <div className="text-xs uppercase tracking-wider text-data-blue font-semibold mb-2">Reps</div>
+                                                <div className="text-xl font-bold text-foreground">{summary.total_reps}</div>
+                                            </div>
+
+                                            <div className="group text-center p-6 rounded-2xl bg-gradient-to-br from-accuracy-green/10 to-accuracy-green/5 border border-accuracy-green/20 hover:shadow-lg hover:scale-105 transition-all duration-300">
+                                                <div className="text-xs uppercase tracking-wider text-accuracy-green font-semibold mb-2">Height</div>
+                                                <div className="text-xl font-bold text-foreground">{summary.activeUser.height}</div>
+                                            </div>
+
+
+
+
+
+                                            <div className="group text-center p-6 rounded-2xl bg-gradient-to-br from-kompte-purple/10 to-kompte-purple/5 border border-kompte-purple/20 hover:shadow-lg hover:scale-105 transition-all duration-300">
+                                                <div className="text-xs uppercase tracking-wider text-kompte-purple font-semibold mb-2">Weight</div>
+                                                <div className="text-xl font-bold text-foreground">{summary.activeUser.weight} kg</div>
+                                            </div>
+
+                                            <div className="group text-center p-6 rounded-2xl bg-gradient-to-br from-velocity-orange/10 to-velocity-orange/5 border border-velocity-orange/20 hover:shadow-lg hover:scale-105 transition-all duration-300">
+                                                <div className="text-xs uppercase tracking-wider text-velocity-orange font-semibold mb-2">Gender</div>
+                                                <div className="text-xl font-bold text-foreground">{summary.activeUser.gender}</div>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex justify-center">
+                                            <Button className="gap-2 bg-gradient-to-r from-kompte-purple to-velocity-orange hover:from-kompte-purple/90 hover:to-velocity-orange/90 text-white border-0 px-8 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
+                                                <Download className="w-5 h-5" />
+                                                Download Premium Report
+                                            </Button>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            </section>
+                            <section>
+                                <PerformanceInsights stamina={summary.stamina} cal={summary.calories} form={summary.avg_pose_score} recov={summary.total_duration}/>
+                            </section>
+                            <div
+                                style={{ marginTop: 12, background: "#fff", padding: 8, borderRadius: 8 }} className={"grid-cols-2"}
+                            >
+                                <div style={{ marginTop: 12, background: "#fff", padding: 8, borderRadius: 8 }}>
+                                    <h4>Charts</h4>
+                                    <div className="grid grid-cols-2 gap-x-8 gap-y-4 px-[15rem]">
+                                        <div style={{ flex: "1 1 600px", height: 360 }}>
+                                            <canvas id="hk-reps-chart" style={{ width: "100%", height: "100%" }} />
+                                        </div>
+                                        <div style={{ flex: "1 1 600px", height: 360 }}>
+                                            <canvas id="hk-pose-chart" style={{ width: "100%", height: "100%" }} />
+                                        </div>
+                                        <div style={{ flex: "1 1 600px", height: 360 }}>
+                                            <canvas id="hk-activity-chart" style={{ width: "100%", height: "100%" }} />
+                                        </div>
+
+                                    </div>
+                                </div>
+
+
+                            </div>
+
+                        </>
+
+
+                    )}
+
                 </div>
             </div>
         </div>
